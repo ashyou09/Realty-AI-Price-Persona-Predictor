@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+// Import property images
+import N1 from '../assets/N1.jpeg';
+import N2 from '../assets/N2.jpeg';
+import N3 from '../assets/N3.jpeg';
+import N4 from '../assets/N4.jpeg';
+import N5 from '../assets/N5.jpeg';
+import N7 from '../assets/N7.jpeg';
+import N8 from '../assets/N8.jpeg';
+
+// Array of all property images
+const propertyImages = [N1, N2, N3, N4, N5, N7, N8];
+
+// Function to get a random image for a property (consistent based on property ID)
+const getPropertyImage = (propertyId) => {
+    if (!propertyId) return propertyImages[0];
+    // Use property ID to get consistent image (hash-like behavior)
+    const index = propertyId.toString().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % propertyImages.length;
+    return propertyImages[index];
+};
 
 export default function PropertyListingPage() {
     const navigate = useNavigate();
@@ -278,7 +297,7 @@ export default function PropertyListingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8">
+        <div className="relative bg-gradient-to-b from-[#b3daff00] to-[#fff9f9] py-20 lg:py-22">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -486,36 +505,44 @@ export default function PropertyListingPage() {
                                     onClick={() => handlePropertyClick(property)}
                                     className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer group relative"
                                 >
-                                    {/* Like Button */}
-                                    <button
-                                        onClick={(e) => handleLikeProperty(property, e)}
-                                        disabled={savingProperty === property.id || savedProperties.has(property.id)}
-                                        className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-lg transition-all duration-200 ${
-                                            savedProperties.has(property.id)
-                                                ? 'bg-red-500 text-white'
-                                                : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-600'
-                                        } ${savingProperty === property.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        title={savedProperties.has(property.id) ? 'Saved to My Properties' : 'Save to My Properties'}
-                                    >
-                                        {savingProperty === property.id ? (
-                                            <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                        ) : savedProperties.has(property.id) ? (
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                            </svg>
-                                        )}
-                                    </button>
+                                    {/* Property Image */}
+                                    <div className="relative w-full h-56 overflow-hidden bg-gray-200">
+                                        <img 
+                                            src={getPropertyImage(property.id)} 
+                                            alt={property.address || 'Property'}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                        />
+                                        {/* Like Button */}
+                                        <button
+                                            onClick={(e) => handleLikeProperty(property, e)}
+                                            disabled={savingProperty === property.id || savedProperties.has(property.id)}
+                                            className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-lg transition-all duration-200 ${
+                                                savedProperties.has(property.id)
+                                                    ? 'bg-red-500 text-white'
+                                                    : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-600'
+                                            } ${savingProperty === property.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            title={savedProperties.has(property.id) ? 'Saved to My Properties' : 'Save to My Properties'}
+                                        >
+                                            {savingProperty === property.id ? (
+                                                <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                            ) : savedProperties.has(property.id) ? (
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
                                     
                                     <div className="p-6">
                                         {/* Header */}
                                         <div className="mb-4">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 pr-8">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                                                 {property.address || 'Property'}
                                             </h3>
                                             <div className="flex items-center gap-2 flex-wrap">

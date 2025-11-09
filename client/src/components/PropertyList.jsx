@@ -1,5 +1,24 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+// Import property images
+import N1 from '../assets/N1.jpeg';
+import N2 from '../assets/N2.jpeg';
+import N3 from '../assets/N3.jpeg';
+import N4 from '../assets/N4.jpeg';
+import N5 from '../assets/N5.jpeg';
+import N7 from '../assets/N7.jpeg';
+import N8 from '../assets/N8.jpeg';
+
+// Array of all property images
+const propertyImages = [N1, N2, N3, N4, N5, N7, N8];
+
+// Function to get a random image for a property (consistent based on property ID)
+const getPropertyImage = (propertyId) => {
+    if (!propertyId) return propertyImages[0];
+    // Use property ID to get consistent image (hash-like behavior)
+    const index = propertyId.toString().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % propertyImages.length;
+    return propertyImages[index];
+};
 
 export default function PropertyList({ refreshTrigger, onPropertyChange }) {
     const [properties, setProperties] = useState([]);
@@ -217,17 +236,27 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
             {/* Properties Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredProperties.map((property) => (
-                    <div key={property._id} className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow">
-                        <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{property.title}</h3>
+                    <div key={property._id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                        {/* Property Image */}
+                        <div className="relative w-full h-48 overflow-hidden">
+                            <img 
+                                src={getPropertyImage(property._id)} 
+                                alt={property.title}
+                                className="w-full h-full object-cover"
+                            />
                             <button
                                 onClick={() => handleDelete(property._id)}
-                                className="text-red-500 hover:text-red-700 text-sm"
+                                className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
+                                title="Delete property"
                             >
                                 🗑️
                             </button>
                         </div>
-                        <div className="space-y-2 text-sm text-gray-600">
+                        
+                        {/* Property Details */}
+                        <div className="p-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3">{property.title}</h3>
+                            <div className="space-y-2 text-sm text-gray-600">
                             <p><span className="font-medium">Price:</span> ₹{property.price?.toLocaleString('en-IN')}</p>
                             <p><span className="font-medium">Size:</span> {property.sqft} sqft</p>
                             <p><span className="font-medium">Bedrooms:</span> {property.bedrooms}</p>
@@ -237,6 +266,7 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
                             <p className="text-xs text-gray-500">
                                 Created: {new Date(property.createdAt).toLocaleDateString()}
                             </p>
+                            </div>
                         </div>
                     </div>
                 ))}

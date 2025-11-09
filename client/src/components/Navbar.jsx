@@ -33,7 +33,7 @@ useEffect(() => {
 }, [dropdownOpen]);
 
 return (
-    <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <nav className="relative bg-gradient-to-b from-[#5096ff] via-[#a0d6ff] py-20 lg:py-3">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
         <Link to="/" className="flex items-center space-x-2 group">
@@ -42,22 +42,79 @@ return (
             </div>
         </Link>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-6">
+                <Link
+                to="/"
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                >
+                Home
+                </Link>
+                {token || user ? (
+                <>
+                    <Link
+                    to="/dashboard"
+                    className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                    >
+                    Prediction
+                    </Link>
+                    <Link
+                    to="/properties"
+                    className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                    >
+                    Properties
+                    </Link>
+                </>
+                ) : null}
+                <button
+                onClick={() => {
+                    if (window.location.pathname === '/') {
+                        const element = document.getElementById('why-choose');
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    } else {
+                        navigate('/');
+                        setTimeout(() => {
+                            const element = document.getElementById('why-choose');
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
+                    }
+                }}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                >
+                About
+                </button>
+                <button
+                onClick={() => {
+                    if (window.location.pathname === '/') {
+                        const element = document.getElementById('testimonials');
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    } else {
+                        navigate('/');
+                        setTimeout(() => {
+                            const element = document.getElementById('testimonials');
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
+                    }
+                }}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                >
+                Reviews
+                </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-4">
             {token || user ? (
             <>
-                <Link
-                to="/dashboard"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200 rounded-md hover:bg-indigo-50"
-                >
-                💰 Predict
-                </Link>
-                <Link
-                to="/properties"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200 rounded-md hover:bg-indigo-50"
-                >
-                🏘️ Properties
-                </Link>
-                
                 {/* User Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                 <button
@@ -101,18 +158,19 @@ return (
             <>
                 <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200 rounded-md hover:bg-indigo-50"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
                 >
                 Login
                 </Link>
                 <Link
                 to="/register"
-                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
-                Register
+                Get Started
                 </Link>
             </>
             )}
+            </div>
         </div>
         </div>
     </div>

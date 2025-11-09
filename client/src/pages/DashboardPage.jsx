@@ -44,7 +44,7 @@ const handlePropertySaved = () => {
 };
 
 return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8">
+    <div className="relative bg-gradient-to-b from-[#b3daff00] to-[#fff9f9] py-20 lg:py-22">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
