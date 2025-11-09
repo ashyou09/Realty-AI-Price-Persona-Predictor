@@ -49,7 +49,13 @@ return (
                 to="/dashboard"
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200 rounded-md hover:bg-indigo-50"
                 >
-                Dashboard
+                💰 Predict
+                </Link>
+                <Link
+                to="/properties"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200 rounded-md hover:bg-indigo-50"
+                >
+                🏘️ Properties
                 </Link>
                 
                 {/* User Dropdown */}

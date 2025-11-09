@@ -25,7 +25,7 @@ const handleSubmit = async (e) => {
     console.log('Login result:', result);
     if (result && result.success) {
         // Navigate immediately - AuthContext should have updated state
-        navigate('/dashboard', { replace: true });
+        navigate('/properties', { replace: true });
     } else {
         setError('Login failed. Please check your credentials.');
         setLoading(false);

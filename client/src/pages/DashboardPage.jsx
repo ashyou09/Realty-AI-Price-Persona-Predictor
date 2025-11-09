@@ -1,14 +1,18 @@
 import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import PricePredictor from './PricePredictor';
 import PropertyList from '../components/PropertyList';
+import AddPropertyModal from '../components/AddPropertyModal';
 
 function DashboardPage() {
 const { user, token } = useContext(AuthContext);
+const navigate = useNavigate();
 const [properties, setProperties] = useState([]);
 const [loading, setLoading] = useState(true);
 const [refreshTrigger, setRefreshTrigger] = useState(0);
+const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
 // Fetch properties on mount and when refreshTrigger changes
 useEffect(() => {
@@ -47,10 +51,10 @@ return (
         <div className="flex items-center justify-between">
             <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}! 👋
+                💰 Price Predictor
             </h1>
             <p className="text-lg text-gray-600">
-                Here's your overview and recent activity.
+                Predict property prices using AI and manage your saved properties.
             </p>
             </div>
             <div className="hidden md:flex items-center space-x-3">
@@ -106,7 +110,9 @@ return (
             <div className="flex items-center justify-between">
             <div>
                 <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">AI Insights</p>
-                <p className="text-4xl font-bold text-gray-900 mt-3">{properties.length}</p>
+                <p className="text-4xl font-bold text-gray-900 mt-3">
+                    {loading ? '...' : properties.filter(p => p.isAiGenerated).length}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">AI powered predictions</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center shadow-inner">
@@ -127,12 +133,26 @@ return (
         <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
         <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">My Properties</h2>
-            <button 
-                onClick={() => setRefreshTrigger(prev => prev + 1)}
-                className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200"
-            >
-                🔄 Refresh
-            </button>
+            <div className="flex gap-3">
+                <button 
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+                >
+                    ➕ Add Property
+                </button>
+                <button 
+                    onClick={() => navigate('/properties')}
+                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                >
+                    🏘️ Browse All Properties
+                </button>
+                <button 
+                    onClick={() => setRefreshTrigger(prev => prev + 1)}
+                    className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200"
+                >
+                    🔄 Refresh
+                </button>
+            </div>
         </div>
         
         {loading ? (
@@ -159,6 +179,15 @@ return (
             />
         )}
         </div>
+
+        {/* Add Property Modal */}
+        <AddPropertyModal
+            isOpen={isAddModalOpen}
+            onClose={() => setIsAddModalOpen(false)}
+            onSuccess={() => {
+                setRefreshTrigger(prev => prev + 1);
+            }}
+        />
     </div>
     </div>
 );

@@ -106,7 +106,9 @@ router.post("/price", async (req, res) => {
             age: predictionData.age,
             price: predictedPrice,
             ownerId: req.userId,
-            model_version: '1.0'
+            model_version: '1.0',
+            isAiGenerated: true, // Mark as AI-generated
+            source: 'ai' // Source is AI prediction
           });
 
           // Save property (Mongoose will validate automatically)

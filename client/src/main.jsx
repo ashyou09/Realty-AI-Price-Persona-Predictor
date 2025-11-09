@@ -11,6 +11,7 @@ import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import PropertyListingPage from './pages/PropertyListingPage.jsx';
 
 // Context & Protection
 import { AuthProvider } from './context/AuthContext.jsx'; // 1. Import AuthProvider
@@ -28,12 +29,20 @@ function MainApp() {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
 
-            {/* Protected Route */}
+            {/* Protected Routes */}
             <Route
               path="dashboard"
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="properties"
+              element={
+                <ProtectedRoute>
+                  <PropertyListingPage />
                 </ProtectedRoute>
               }
             />

@@ -77,6 +77,10 @@ export const createProperty = async (req, res) => {
             });
         }
 
+        // Determine source and isAiGenerated from request body
+        const source = req.body.source || 'manual'; // 'ai', 'manual', 'wishlist'
+        const isAiGenerated = source === 'ai';
+
         const property = new Property({
             title,
             sqft: Number(sqft),
@@ -88,6 +92,8 @@ export const createProperty = async (req, res) => {
             persona: persona || null,
             persona_cluster: persona_cluster || null,
             model_version: '1.0',
+            isAiGenerated: isAiGenerated,
+            source: source,
             ownerId: req.userId
         });
 

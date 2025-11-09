@@ -6,6 +6,7 @@ import connectDB from './config/mongodb.js';
 import authRouter from './routes/authRoutes.js';
 import predictRoutes from "./routes/predictRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
+import housingRoutes from "./routes/housingRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 
 // Public routes
 app.use('/api/auth', authRouter);
+app.use('/api/housing', housingRoutes); // Public housing data
 
 // Protected routes (require authentication)
 app.use("/api/predict", predictRoutes);

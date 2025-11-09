@@ -82,7 +82,7 @@ const register = async (name, email, password) => {
         if (newUser) {
         setUser(newUser);
         }
-        return { success: true, redirect: '/dashboard' };
+        return { success: true, redirect: '/properties' };
     }
     return { success: false };
     } catch (error) {
@@ -110,7 +110,7 @@ const login = async (email, password) => {
         if (newUser) {
         setUser(newUser);
         }
-        return { success: true, redirect: '/dashboard' };
+        return { success: true, redirect: '/properties' };
     }
     return { success: false };
     } catch (error) {

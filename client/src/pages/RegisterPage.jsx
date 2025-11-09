@@ -30,7 +30,7 @@ const handleSubmit = async (e) => {
     console.log('Registration result:', result);
     if (result && result.success) {
         // Navigate immediately - AuthContext should have updated state
-        navigate('/dashboard', { replace: true });
+        navigate('/properties', { replace: true });
     } else {
         setError('Registration failed. Please try again.');
         setLoading(false);
