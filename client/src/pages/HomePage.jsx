@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 function HomePage() {
-const { token } = useContext(AuthContext);
+const { token, user } = useContext(AuthContext);
+const isAuthenticated = token || user;
 
 return (
 <div className="min-h-screen">
@@ -18,7 +19,7 @@ return (
             <p className="text-xl md:text-2xl text-indigo-100 mb-8 max-w-3xl mx-auto">
             Your intelligent partner in real estate. Leverage AI-powered insights to make smarter property decisions.
             </p>
-            {!token && (
+            {!isAuthenticated && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                 to="/register"
@@ -34,7 +35,7 @@ return (
                 </Link>
             </div>
             )}
-            {token && (
+            {isAuthenticated && (
             <Link
                 to="/dashboard"
                 className="inline-block px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
