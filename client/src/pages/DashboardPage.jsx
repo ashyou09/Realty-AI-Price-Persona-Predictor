@@ -89,10 +89,15 @@ return (
             <div>
                 <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Value</p>
                 <p className="text-4xl font-bold text-gray-900 mt-3">
-                    {loading ? '...' : properties.length > 0 
-                        ? `₹${(properties.reduce((sum, p) => sum + (p.price || 0), 0) / 10000000).toFixed(1)}Cr`
-                        : '₹0'
-                    }
+                    {loading ? '...' : (() => {
+                        const totalValue = properties.reduce((sum, p) => {
+                            const price = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+                            return sum + price;
+                        }, 0);
+                        if (totalValue === 0) return '₹0';
+                        const crores = totalValue / 10000000;
+                        return `₹${crores.toFixed(2)}Cr`;
+                    })()}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                     {properties.length === 0 ? 'Start analyzing' : 'Portfolio value'}
@@ -136,21 +141,21 @@ return (
             <div className="flex gap-3">
                 <button 
                     onClick={() => setIsAddModalOpen(true)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-[#3ed83e] rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
                 >
                     ➕ Add Property
                 </button>
                 <button 
                     onClick={() => navigate('/properties')}
-                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                    className="px-4 py-2 text-sm font-medium text-white bg-[#665fe0] rounded-lg hover:bg-indigo-700 transition-colors duration-200"
                 >
-                    🏘️ Browse All Properties
+                    🏘️ Browse Properties
                 </button>
                 <button 
                     onClick={() => setRefreshTrigger(prev => prev + 1)}
                     className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200"
                 >
-                    🔄 Refresh
+                    Refresh
                 </button>
             </div>
         </div>

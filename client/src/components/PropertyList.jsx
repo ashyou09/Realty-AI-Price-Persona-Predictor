@@ -246,7 +246,7 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
                             />
                             <button
                                 onClick={() => handleDelete(property._id)}
-                                className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
+                                className="absolute top-2 right-2 p-1 bg-[#f9f6b0] rounded-full shadow-md hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
                                 title="Delete property"
                             >
                                 🗑️
