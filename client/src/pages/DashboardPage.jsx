@@ -1,8 +1,43 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import PricePredictor from './PricePredictor';
+import PropertyList from '../components/PropertyList';
 
 function DashboardPage() {
-const { user } = useContext(AuthContext);
+const { user, token } = useContext(AuthContext);
+const [properties, setProperties] = useState([]);
+const [loading, setLoading] = useState(true);
+const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+// Fetch properties on mount and when refreshTrigger changes
+useEffect(() => {
+    fetchProperties();
+}, [refreshTrigger, token]);
+
+const fetchProperties = async () => {
+    if (!token && !user) return;
+    
+    try {
+        setLoading(true);
+        const res = await axios.get('/api/properties', {
+            withCredentials: true
+        });
+        if (res.data.success) {
+            setProperties(res.data.properties || []);
+        }
+    } catch (err) {
+        console.error('Error fetching properties:', err);
+        setProperties([]);
+    } finally {
+        setLoading(false);
+    }
+};
+
+// Function to trigger refresh (called after property is saved)
+const handlePropertySaved = () => {
+    setRefreshTrigger(prev => prev + 1);
+};
 
 return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8">
@@ -32,8 +67,10 @@ return (
             <div className="flex items-center justify-between">
             <div>
                 <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Properties</p>
-                <p className="text-4xl font-bold text-gray-900 mt-3">0</p>
-                <p className="text-xs text-gray-500 mt-1">No properties yet</p>
+                <p className="text-4xl font-bold text-gray-900 mt-3">{loading ? '...' : properties.length}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                    {properties.length === 0 ? 'No properties yet' : `${properties.length} property${properties.length !== 1 ? 'ies' : ''}`}
+                </p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-inner">
                 <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,9 +83,16 @@ return (
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow duration-200 transform hover:-translate-y-1">
             <div className="flex items-center justify-between">
             <div>
-                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Analyses</p>
-                <p className="text-4xl font-bold text-gray-900 mt-3">0</p>
-                <p className="text-xs text-gray-500 mt-1">Start analyzing</p>
+                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Value</p>
+                <p className="text-4xl font-bold text-gray-900 mt-3">
+                    {loading ? '...' : properties.length > 0 
+                        ? `₹${(properties.reduce((sum, p) => sum + (p.price || 0), 0) / 10000000).toFixed(1)}Cr`
+                        : '₹0'
+                    }
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                    {properties.length === 0 ? 'Start analyzing' : 'Portfolio value'}
+                </p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center shadow-inner">
                 <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,8 +106,8 @@ return (
             <div className="flex items-center justify-between">
             <div>
                 <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">AI Insights</p>
-                <p className="text-4xl font-bold text-gray-900 mt-3">0</p>
-                <p className="text-xs text-gray-500 mt-1">AI powered insights</p>
+                <p className="text-4xl font-bold text-gray-900 mt-3">{properties.length}</p>
+                <p className="text-xs text-gray-500 mt-1">AI powered predictions</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center shadow-inner">
                 <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,28 +118,46 @@ return (
         </div>
         </div>
 
-        {/* Main Content */}
+        {/* Price Predictor */}
+        <div className="mb-8">
+        <PricePredictor onPropertySaved={handlePropertySaved} />
+        </div>
+
+        {/* Properties List */}
         <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
         <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Recent Activity</h2>
-            <button className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
-            View All
+            <h2 className="text-2xl font-bold text-gray-900">My Properties</h2>
+            <button 
+                onClick={() => setRefreshTrigger(prev => prev + 1)}
+                className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200"
+            >
+                🔄 Refresh
             </button>
         </div>
-        <div className="text-center py-16">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-10 w-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+        
+        {loading ? (
+            <div className="text-center py-16">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <p className="mt-4 text-gray-600">Loading properties...</p>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No activity yet</h3>
-            <p className="text-sm text-gray-500 mb-6 max-w-md mx-auto">
-            Get started by analyzing your first property and unlock AI-powered insights for your real estate portfolio.
-            </p>
-            <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-            Analyze Property
-            </button>
-        </div>
+        ) : properties.length === 0 ? (
+            <div className="text-center py-16">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="h-10 w-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No properties yet</h3>
+                <p className="text-sm text-gray-500 mb-6 max-w-md mx-auto">
+                Get started by predicting and saving your first property above.
+                </p>
+            </div>
+        ) : (
+            <PropertyList 
+                refreshTrigger={refreshTrigger} 
+                onPropertyChange={() => setRefreshTrigger(prev => prev + 1)}
+            />
+        )}
         </div>
     </div>
     </div>

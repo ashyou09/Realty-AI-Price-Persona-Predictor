@@ -1,15 +1,23 @@
 import mongoose from 'mongoose';
 
-
+const propertySchema = new mongoose.Schema({
     title: { type: String, required: true },
     sqft: { type: Number, required: true },
     bedrooms: { type: Number, required: true },
-    price: { type: Number, required: true },
+    bathrooms: { type: Number, required: true },
+    location_score: { type: Number, required: true, min: 1, max: 10 },
+    age: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true }, // Predicted price from AI model
     persona: { type: String, default: null },
     persona_cluster: { type: Number, default: null },
-    model_version: { type: String, default: null },
-    ownerId: { type: Number, required: true },
+    model_version: { type: String, default: '1.0' },
+    ownerId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'user',
+        required: true 
+    },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
 });
 
 // Prevent model overwrite issues in serverless / hot-reload environments

@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// The URL of your backend server
-const API_URL = 'http://127.0.0.1:3000/api/auth';
+// The URL of your backend server (using relative URL for Vite proxy)
+const API_URL = '/api/auth';
 
 // Configure axios to send credentials (cookies)
 axios.defaults.withCredentials = true;
