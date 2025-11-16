@@ -62,9 +62,10 @@ export const register = async(req,res)=>{
 
         // we have to generate token so that i can use as cookie
         const token = jwt.sign({id : verifyUser._id},process.env.JWT_SECRET,{expiresIn:'15d'});
-        res.cookie('token',token,{httpOnly:true, 
-            secure:process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        res.cookie('token',token,{
+            httpOnly: true, 
+            secure: true, // Always true for cross-domain cookies
+            sameSite: 'none', // Allow cross-domain cookies
             maxAge: 15 * 24 * 60 * 60 * 1000,
         });
 
@@ -115,9 +116,9 @@ export const login = async(req,res)=>{
 
         const token = jwt.sign({id : user._id},process.env.JWT_SECRET,{expiresIn:'15d'});
         res.cookie('token',token,{
-            httpOnly:true, 
-            secure:process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            httpOnly: true, 
+            secure: true, // Always true for cross-domain cookies
+            sameSite: 'none', // Allow cross-domain cookies
             maxAge: 15 * 24 * 60 * 60 * 1000,
         });
 
@@ -147,9 +148,9 @@ export const logout = async(req,res)=>{
 
     try{
         res.clearCookie('token',{
-            httpOnly:true, 
-            secure:process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            httpOnly: true, 
+            secure: true, // Must match the original cookie settings
+            sameSite: 'none', // Must match the original cookie settings
         });
         return res.json({
             success: true,

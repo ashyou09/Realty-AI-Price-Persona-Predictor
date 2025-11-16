@@ -47,18 +47,25 @@ useEffect(() => {
 // Verify authentication status
 const verifyAuth = async () => {
     try {
-    const response = await axios.get(`${API_URL}/verify`);
+    const existingToken = localStorage.getItem('token');
+    
+    // Create axios instance with token if available
+    const verifyConfig = {};
+    if (existingToken && existingToken !== 'null' && existingToken !== 'undefined') {
+        verifyConfig.headers = {
+        'Authorization': `Bearer ${existingToken}`
+        };
+    }
+    
+    const response = await axios.get(`${API_URL}/verify`, verifyConfig);
     if (response.data.success && response.data.user) {
         setUser(response.data.user);
-        // Preserve existing token from localStorage if it exists
-        // If not, user is still authenticated via cookie, so we mark as authenticated
-        const existingToken = localStorage.getItem('token');
-        if (existingToken) {
+        // If we have a token from localStorage, use it
+        if (existingToken && existingToken !== 'null' && existingToken !== 'undefined') {
         setToken(existingToken);
         } else {
-        // User authenticated via cookie but no token in localStorage
-        // This shouldn't normally happen, but if it does, set a flag
-        setToken('cookie-auth'); // Flag to indicate cookie-based auth
+        // User authenticated but no localStorage token - this is cookie-based auth
+        setToken('cookie-auth');
         }
     } else {
         setToken(null);
