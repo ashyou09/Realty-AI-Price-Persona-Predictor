@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
 // Import property images
 import N1 from '../assets/N1.jpeg';
@@ -64,7 +65,7 @@ export default function PropertyListingPage() {
     // Fetch saved properties to show which ones are already saved
     const fetchSavedProperties = async () => {
         try {
-            const res = await axios.get('/api/properties', {
+            const res = await axios.get(`${API_BASE_URL}/properties`, {
                 withCredentials: true
             });
             if (res.data.success && res.data.properties && properties.length > 0) {
@@ -108,7 +109,7 @@ export default function PropertyListingPage() {
     const fetchProperties = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/housing');
+            const res = await axios.get(`${API_BASE_URL}/housing`);
             if (res.data.success) {
                 setProperties(res.data.properties || []);
                 setError(null);
@@ -233,7 +234,7 @@ export default function PropertyListingPage() {
                 isAiGenerated: false // Not AI-generated
             };
 
-            const res = await axios.post('/api/properties', propertyData, {
+            const res = await axios.post(`${API_BASE_URL}/properties`, propertyData, {
                 withCredentials: true
             });
 

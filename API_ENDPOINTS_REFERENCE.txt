@@ -1,0 +1,359 @@
+════════════════════════════════════════════════════════════════════════════
+                         API ENDPOINTS REFERENCE
+════════════════════════════════════════════════════════════════════════════
+
+BACKEND BASE URL:
+https://realty-ai-price-persona-predictor.onrender.com
+
+════════════════════════════════════════════════════════════════════════════
+AUTHENTICATION ENDPOINTS
+════════════════════════════════════════════════════════════════════════════
+
+1. REGISTER NEW USER
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: POST /api/auth/register
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/auth/register
+   
+   Headers:
+     Content-Type: application/json
+   
+   Request Body:
+   {
+     "name": "John Doe",
+     "email": "john@example.com",
+     "password": "SecurePassword123!"
+   }
+   
+   Response (Success - 200):
+   {
+     "success": true,
+     "message": "Registration successful",
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     "user": {
+       "id": "691a0d334c8eecada6686b7d",
+       "name": "John Doe",
+       "email": "john@example.com"
+     }
+   }
+   
+   Response (Error - 400):
+   {
+     "success": false,
+     "message": "User already exists" or "All fields are required"
+   }
+
+
+2. LOGIN USER
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: POST /api/auth/login
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/auth/login
+   
+   Headers:
+     Content-Type: application/json
+   
+   Request Body:
+   {
+     "email": "john@example.com",
+     "password": "SecurePassword123!"
+   }
+   
+   Response (Success - 200):
+   {
+     "success": true,
+     "message": "Login successful",
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     "user": {
+       "id": "691a0d334c8eecada6686b7d",
+       "name": "John Doe",
+       "email": "john@example.com"
+     }
+   }
+   
+   Response (Error - 400):
+   {
+     "success": false,
+     "message": "Invalid password" or "User not found"
+   }
+
+
+3. VERIFY TOKEN
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: GET /api/auth/verify
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/auth/verify
+   
+   Headers:
+     Authorization: Bearer <token>
+     OR
+     Cookie: token=<token>
+   
+   Response (Success - 200):
+   {
+     "success": true,
+     "user": {
+       "id": "691a0d334c8eecada6686b7d",
+       "name": "John Doe",
+       "email": "john@example.com"
+     }
+   }
+   
+   Response (Error - 401):
+   {
+     "success": false,
+     "message": "Not authenticated" or "Invalid token"
+   }
+
+
+4. LOGOUT USER
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: POST /api/auth/logout
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/auth/logout
+   
+   Headers:
+     Authorization: Bearer <token>
+     OR
+     Cookie: token=<token>
+   
+   Response (Success - 200):
+   {
+     "success": true,
+     "message": "Logout successful"
+   }
+
+════════════════════════════════════════════════════════════════════════════
+OTHER API ENDPOINTS
+════════════════════════════════════════════════════════════════════════════
+
+5. GET ALL PROPERTIES (Protected)
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: GET /api/properties
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/properties
+   
+   Headers:
+     Authorization: Bearer <token>
+   
+   Response (Success - 200):
+   {
+     "success": true,
+     "properties": [ ... ]
+   }
+
+
+6. CREATE PROPERTY (Protected)
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: POST /api/properties
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/properties
+   
+   Headers:
+     Authorization: Bearer <token>
+     Content-Type: application/json
+   
+   Request Body:
+   {
+     "title": "Beautiful House",
+     "sqft": 2500,
+     "bedrooms": 4,
+     "bathrooms": 2,
+     "location_score": 8.5,
+     "age": 10,
+     "price": 500000
+   }
+
+
+7. PREDICT PRICE (Protected)
+   ──────────────────────────────────────────────────────────────────────
+   Endpoint: POST /api/predict/price
+   Full URL: https://realty-ai-price-persona-predictor.onrender.com/api/predict/price
+   
+   Headers:
+     Authorization: Bearer <token>
+     Content-Type: application/json
+   
+   Request Body:
+   {
+     "sqft": 2500,
+     "bedrooms": 4,
+     "bathrooms": 2,
+     "location_score": 8.5,
+     "age": 10,
+     "save": true,
+     "title": "Property to Predict"
+   }
+
+════════════════════════════════════════════════════════════════════════════
+FRONTEND INTEGRATION
+════════════════════════════════════════════════════════════════════════════
+
+Frontend URL: http://localhost:5174
+
+API Configuration File:
+  Location: /client/src/config/api.js
+  Content:
+    const API_BASE_URL = 'https://realty-ai-price-persona-predictor.onrender.com/api';
+    export default API_BASE_URL;
+
+AuthContext API URL:
+  Location: /client/src/context/AuthContext.jsx
+  Content:
+    const API_URL = 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
+
+All Components use:
+  ✓ API_BASE_URL from config/api.js for properties and predictions
+  ✓ API_URL from AuthContext for authentication
+
+════════════════════════════════════════════════════════════════════════════
+TESTING WITH CURL
+════════════════════════════════════════════════════════════════════════════
+
+1. REGISTER:
+   curl -X POST https://realty-ai-price-persona-predictor.onrender.com/api/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Test","email":"test@example.com","password":"Test123456"}'
+
+2. LOGIN:
+   curl -X POST https://realty-ai-price-persona-predictor.onrender.com/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"test@example.com","password":"Test123456"}'
+
+3. VERIFY (replace TOKEN with actual token):
+   curl -X GET https://realty-ai-price-persona-predictor.onrender.com/api/auth/verify \
+     -H "Authorization: Bearer TOKEN"
+
+4. LOGOUT:
+   curl -X POST https://realty-ai-price-persona-predictor.onrender.com/api/auth/logout \
+     -H "Authorization: Bearer TOKEN"
+
+════════════════════════════════════════════════════════════════════════════
+TESTING WITH POSTMAN
+════════════════════════════════════════════════════════════════════════════
+
+1. Import Collection:
+   Base URL: https://realty-ai-price-persona-predictor.onrender.com
+
+2. Register Endpoint:
+   Method: POST
+   URL: {{base_url}}/api/auth/register
+   Body (JSON):
+   {
+     "name": "Test User",
+     "email": "test@example.com",
+     "password": "Test123456"
+   }
+
+3. Store token from response:
+   Tests Tab:
+   var jsonData = pm.response.json();
+   pm.environment.set("token", jsonData.token);
+
+4. Login Endpoint:
+   Method: POST
+   URL: {{base_url}}/api/auth/login
+   Body (JSON):
+   {
+     "email": "test@example.com",
+     "password": "Test123456"
+   }
+
+5. Verify Endpoint:
+   Method: GET
+   URL: {{base_url}}/api/auth/verify
+   Headers:
+     Authorization: Bearer {{token}}
+
+════════════════════════════════════════════════════════════════════════════
+FRONTEND FILES UPDATED
+════════════════════════════════════════════════════════════════════════════
+
+✓ /client/src/config/api.js (NEW)
+  - Centralized API configuration
+  - Exports API_BASE_URL
+
+✓ /client/src/context/AuthContext.jsx
+  - Updated API_URL to use full backend URL
+  - Fixed verify endpoint to accept Authorization header
+  - All auth methods working
+
+✓ /client/src/pages/LoginPage.jsx
+  - Uses AuthContext.login()
+  - API calls handled by context
+
+✓ /client/src/pages/RegisterPage.jsx
+  - Uses AuthContext.register()
+  - API calls handled by context
+
+✓ /client/src/pages/DashboardPage.jsx
+  - Uses API_BASE_URL for properties
+
+✓ /client/src/pages/PricePredictor.jsx
+  - Uses API_BASE_URL for predictions
+
+✓ /client/src/pages/PropertyListingPage.jsx
+  - Uses API_BASE_URL for properties
+  - Uses API_BASE_URL for saving
+
+✓ /client/src/pages/HomePage.jsx
+  - Uses API_BASE_URL for stats
+
+✓ /client/src/components/PropertyList.jsx
+  - Uses API_BASE_URL for fetch and delete
+
+✓ /client/src/components/AddPropertyModal.jsx
+  - Uses API_BASE_URL for create
+
+✓ /client/src/components/Navbar.jsx
+  - Logout button calls AuthContext.logout()
+
+════════════════════════════════════════════════════════════════════════════
+BACKEND DEPLOYMENT
+════════════════════════════════════════════════════════════════════════════
+
+Platform: Render
+Service: realty-ai-price-persona-predictor
+URL: https://realty-ai-price-persona-predictor.onrender.com
+
+Git Auto-Deploy: YES
+Repository: ashyou09/Realty-AI-Price-Persona-Predictor
+Branch: main
+
+To Trigger New Deploy:
+  1. Make changes to server files
+  2. git add .
+  3. git commit -m "message"
+  4. git push origin main
+  5. Render automatically deploys
+
+Recent Changes:
+  ✓ Fixed verify endpoint to accept Authorization header
+  - File: /server/controllers/authController.js
+  - Change: Updated token extraction logic
+  - Status: Ready for deployment
+
+════════════════════════════════════════════════════════════════════════════
+ENVIRONMENT VARIABLES REQUIRED
+════════════════════════════════════════════════════════════════════════════
+
+BACKEND (.env):
+  NODE_ENV=production
+  JWT_SECRET=your-secret-key
+  MONGODB_URI=your-mongodb-connection-string
+  CORS_ORIGIN=https://your-frontend-domain.com
+
+FRONTEND:
+  No environment variables needed (API URL is hardcoded)
+  
+  Alternative (if using .env):
+  VITE_API_URL=https://realty-ai-price-persona-predictor.onrender.com/api
+
+════════════════════════════════════════════════════════════════════════════
+SECURITY HEADERS REQUIRED
+════════════════════════════════════════════════════════════════════════════
+
+Your backend should include:
+  ✓ Access-Control-Allow-Origin
+  ✓ Access-Control-Allow-Methods
+  ✓ Access-Control-Allow-Headers
+  ✓ Access-Control-Allow-Credentials
+  ✓ Content-Type: application/json
+  ✓ X-Content-Type-Options: nosniff
+  ✓ X-Frame-Options: DENY
+
+════════════════════════════════════════════════════════════════════════════

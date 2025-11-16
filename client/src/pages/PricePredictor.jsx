@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 import { AuthContext } from "../context/AuthContext";
 
 export default function PricePredictor({ onPropertySaved }) {
@@ -77,7 +78,7 @@ const handleSubmit = async (e) => {
         }
         
         // Make request with credentials
-        const res = await axios.post("/api/predict/price", payload, {
+        const res = await axios.post(`${API_BASE_URL}/predict/price`, payload, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'

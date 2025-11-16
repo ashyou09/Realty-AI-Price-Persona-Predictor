@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { AuthContext } from '../context/AuthContext';
 import buildingImage from '../assets/p2.png';
 // import rectangleImage from '../assets/p1.jpeg';
@@ -25,7 +26,7 @@ useEffect(() => {
 
 const fetchStats = async () => {
     try {
-        const res = await axios.get('/api/properties', {
+        const res = await axios.get(`${API_BASE_URL}/properties`, {
             withCredentials: true
         });
         if (res.data.success) {

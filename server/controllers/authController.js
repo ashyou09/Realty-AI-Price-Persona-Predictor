@@ -166,7 +166,9 @@ export const logout = async(req,res)=>{
 
 export const verify = async(req,res)=>{
     try{
-        const token = req.cookies.token;
+        // Get token from cookie or Authorization header
+        const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
+        
         if(!token){
             return res.status(401).json({
                 success: false,

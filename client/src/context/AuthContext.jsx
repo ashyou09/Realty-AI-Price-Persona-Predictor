@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// The URL of your backend server (using relative URL for Vite proxy)
-const API_URL = '/api/auth';
+// The URL of your backend server
+const API_URL = 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
 
 // Configure axios to send credentials (cookies)
 axios.defaults.withCredentials = true;

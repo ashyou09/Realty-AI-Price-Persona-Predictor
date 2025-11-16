@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 // Import property images
 import N1 from '../assets/N1.jpeg';
 import N2 from '../assets/N2.jpeg';
@@ -36,7 +37,7 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
     const fetchProperties = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/properties', {
+            const res = await axios.get(`${API_BASE_URL}/properties`, {
                 withCredentials: true
             });
             if (res.data.success) {
@@ -93,7 +94,7 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
         }
 
         try {
-            await axios.delete(`/api/properties/${id}`, {
+            await axios.delete(`${API_BASE_URL}/properties/${id}`, {
                 withCredentials: true
             });
             fetchProperties(); // Refresh list

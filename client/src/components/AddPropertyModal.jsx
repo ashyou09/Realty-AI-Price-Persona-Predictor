@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 
 export default function AddPropertyModal({ isOpen, onClose, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ export default function AddPropertyModal({ isOpen, onClose, onSuccess }) {
 
         try {
             setLoading(true);
-            const res = await axios.post('/api/properties', {
+            const res = await axios.post(`${API_BASE_URL}/properties`, {
                 title: formData.title,
                 sqft: parseFloat(formData.sqft),
                 bedrooms: parseInt(formData.bedrooms),

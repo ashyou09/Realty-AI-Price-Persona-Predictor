@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import PricePredictor from './PricePredictor';
@@ -24,7 +25,7 @@ const fetchProperties = async () => {
     
     try {
         setLoading(true);
-        const res = await axios.get('/api/properties', {
+        const res = await axios.get(`${API_BASE_URL}/properties`, {
             withCredentials: true
         });
         if (res.data.success) {
