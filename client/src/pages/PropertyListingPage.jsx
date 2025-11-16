@@ -45,6 +45,12 @@ export default function PropertyListingPage() {
         buildingType: ''
     });
     
+    // Search state
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Filters dropdown state
+    const [showFilters, setShowFilters] = useState(false);
+    
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
@@ -96,7 +102,8 @@ export default function PropertyListingPage() {
     // Apply filters and sorting
     useEffect(() => {
         applyFiltersAndSort();
-    }, [properties, filters, sortBy, sortOrder]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [properties, filters, sortBy, sortOrder, searchQuery]);
 
     // Re-fetch saved properties when properties list is loaded
     useEffect(() => {
@@ -126,6 +133,17 @@ export default function PropertyListingPage() {
 
     const applyFiltersAndSort = () => {
         let filtered = [...properties];
+
+        // Apply search filter
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(p => {
+                const address = (p.address || '').toLowerCase();
+                const landmarks = (p.landmarks || '').toLowerCase();
+                const buildingType = (p.type_of_building || '').toLowerCase();
+                return address.includes(query) || landmarks.includes(query) || buildingType.includes(query);
+            });
+        }
 
         // Apply filters
         if (filters.minPrice) {
@@ -193,6 +211,7 @@ export default function PropertyListingPage() {
             furnished: '',
             buildingType: ''
         });
+        setSearchQuery('');
     };
 
     const handlePropertyClick = (property) => {
@@ -351,170 +370,224 @@ export default function PropertyListingPage() {
                     </div>
                 </div>
 
-                {/* Filters and Sort Section */}
-                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                    <div className="mb-6">
-                        <div className="flex items-center justify-between mb-4">
+                {/* Search Bar */}
+                <div className="mb-8">
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                        <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search by property name, area, or landmarks... (e.g., 'Downtown', 'MG Road')"
+                                className="w-full px-4 py-3 border-0 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-700 placeholder-gray-400"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="px-3 py-2 text-gray-500 hover:text-gray-700 transition-colors"
+                                    title="Clear search"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                        {searchQuery && (
+                            <p className="text-sm text-gray-500 mt-2">
+                                Found {filteredProperties.length} matching properties
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Filters and Sort Section - Collapsible */}
+                <div className="mb-8">
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="w-full bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow flex items-center justify-between"
+                    >
+                        <div className="flex items-center gap-3">
+                            <svg className={`w-5 h-5 text-indigo-600 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
                             <h2 className="text-xl font-semibold text-gray-900">Filters & Sorting</h2>
-                            <button
-                                onClick={clearFilters}
-                                className="text-sm text-indigo-600 hover:text-indigo-700"
-                            >
-                                Clear All Filters
-                            </button>
                         </div>
+                        <span className="text-sm text-gray-500 font-medium">
+                            {showFilters ? 'Hide' : 'Show'}
+                        </span>
+                    </button>
 
-                        {/* Filter Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (₹)</label>
-                                <input
-                                    type="number"
-                                    value={filters.minPrice}
-                                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                                    placeholder="Min"
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                />
+                    {/* Filters Content - Only shown when showFilters is true */}
+                    {showFilters && (
+                        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-t-2 border-indigo-500 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="mb-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
+                                    <button
+                                        onClick={clearFilters}
+                                        className="text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline"
+                                    >
+                                        Reset All
+                                    </button>
+                                </div>
+
+                                {/* Filter Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (₹)</label>
+                                        <input
+                                            type="number"
+                                            value={filters.minPrice}
+                                            onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                                            placeholder="Min"
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (₹)</label>
+                                        <input
+                                            type="number"
+                                            value={filters.maxPrice}
+                                            onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                                            placeholder="Max"
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Min Area (sqft)</label>
+                                        <input
+                                            type="number"
+                                            value={filters.minArea}
+                                            onChange={(e) => handleFilterChange('minArea', e.target.value)}
+                                            placeholder="Min"
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Area (sqft)</label>
+                                        <input
+                                            type="number"
+                                            value={filters.maxArea}
+                                            onChange={(e) => handleFilterChange('maxArea', e.target.value)}
+                                            placeholder="Max"
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
+                                        <select
+                                            value={filters.bedrooms}
+                                            onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            <option value="">All</option>
+                                            <option value="1">1 BHK</option>
+                                            <option value="2">2 BHK</option>
+                                            <option value="3">3 BHK</option>
+                                            <option value="4">4 BHK</option>
+                                            <option value="5">5+ BHK</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                        <select
+                                            value={filters.status}
+                                            onChange={(e) => handleFilterChange('status', e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            <option value="">All</option>
+                                            {uniqueStatuses.map(status => (
+                                                <option key={status} value={status}>{status}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Furnishing</label>
+                                        <select
+                                            value={filters.furnished}
+                                            onChange={(e) => handleFilterChange('furnished', e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            <option value="">All</option>
+                                            {uniqueFurnished.map(f => (
+                                                <option key={f} value={f}>{f}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Building Type</label>
+                                        <select
+                                            value={filters.buildingType}
+                                            onChange={(e) => handleFilterChange('buildingType', e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            <option value="">All</option>
+                                            {uniqueBuildingTypes.map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Sort Buttons */}
+                                <div className="border-t pt-6">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                                        <button
+                                            onClick={() => handleSort('price')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                sortBy === 'price'
+                                                    ? 'bg-indigo-600 text-white'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                        </button>
+                                        <button
+                                            onClick={() => handleSort('area')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                sortBy === 'area'
+                                                    ? 'bg-indigo-600 text-white'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            Area {sortBy === 'area' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                        </button>
+                                        <button
+                                            onClick={() => handleSort('bedrooms')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                sortBy === 'bedrooms'
+                                                    ? 'bg-indigo-600 text-white'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            Bedrooms {sortBy === 'bedrooms' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                        </button>
+                                        <button
+                                            onClick={() => handleSort('price_sqft')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                sortBy === 'price_sqft'
+                                                    ? 'bg-indigo-600 text-white'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            Price/sqft {sortBy === 'price_sqft' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (₹)</label>
-                                <input
-                                    type="number"
-                                    value={filters.maxPrice}
-                                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                                    placeholder="Max"
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Min Area (sqft)</label>
-                                <input
-                                    type="number"
-                                    value={filters.minArea}
-                                    onChange={(e) => handleFilterChange('minArea', e.target.value)}
-                                    placeholder="Min"
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Max Area (sqft)</label>
-                                <input
-                                    type="number"
-                                    value={filters.maxArea}
-                                    onChange={(e) => handleFilterChange('maxArea', e.target.value)}
-                                    placeholder="Max"
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
-                                <select
-                                    value={filters.bedrooms}
-                                    onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    <option value="">All</option>
-                                    <option value="1">1 BHK</option>
-                                    <option value="2">2 BHK</option>
-                                    <option value="3">3 BHK</option>
-                                    <option value="4">4 BHK</option>
-                                    <option value="5">5+ BHK</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select
-                                    value={filters.status}
-                                    onChange={(e) => handleFilterChange('status', e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    <option value="">All</option>
-                                    {uniqueStatuses.map(status => (
-                                        <option key={status} value={status}>{status}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Furnishing</label>
-                                <select
-                                    value={filters.furnished}
-                                    onChange={(e) => handleFilterChange('furnished', e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    <option value="">All</option>
-                                    {uniqueFurnished.map(f => (
-                                        <option key={f} value={f}>{f}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Building Type</label>
-                                <select
-                                    value={filters.buildingType}
-                                    onChange={(e) => handleFilterChange('buildingType', e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    <option value="">All</option>
-                                    {uniqueBuildingTypes.map(type => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
+
+                            {/* Results Count */}
+                            <div className="pt-4 border-t">
+                                <p className="text-sm text-gray-600">
+                                    Showing <span className="font-semibold text-indigo-600">{filteredProperties.length}</span> of{' '}
+                                    <span className="font-semibold">{properties.length}</span> properties
+                                </p>
                             </div>
                         </div>
-
-                        {/* Sort Buttons */}
-                        <div className="flex items-center gap-3 flex-wrap">
-                            <span className="text-sm font-medium text-gray-700">Sort by:</span>
-                            <button
-                                onClick={() => handleSort('price')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    sortBy === 'price'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </button>
-                            <button
-                                onClick={() => handleSort('area')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    sortBy === 'area'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                Area {sortBy === 'area' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </button>
-                            <button
-                                onClick={() => handleSort('bedrooms')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    sortBy === 'bedrooms'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                Bedrooms {sortBy === 'bedrooms' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </button>
-                            <button
-                                onClick={() => handleSort('price_sqft')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    sortBy === 'price_sqft'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                Price/sqft {sortBy === 'price_sqft' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Results Count */}
-                    <div className="pt-4 border-t">
-                        <p className="text-sm text-gray-600">
-                            Showing <span className="font-semibold text-indigo-600">{filteredProperties.length}</span> of{' '}
-                            <span className="font-semibold">{properties.length}</span> properties
-                        </p>
-                    </div>
+                    )}
                 </div>
 
                 {/* Properties Grid */}
