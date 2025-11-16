@@ -11,6 +11,8 @@ const API_URL = isDevelopment
 : 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
 
 // Configure axios
+// Always enable credentials so cookies are sent with every request
+// This allows the server to maintain session via cookies
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 

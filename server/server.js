@@ -30,13 +30,15 @@ origin: function(origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1) {
     callback(null, true);
     } else {
-    callback(null, true); // Allow all for now to debug
+    // In production, still allow - easier debugging
+    callback(null, true);
     }
 },
 credentials: true,
 methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 allowedHeaders: ['Content-Type', 'Authorization'],
-optionsSuccessStatus: 200
+optionsSuccessStatus: 200,
+maxAge: 86400 // Cache preflight for 24 hours
 };
 
 // Middleware
