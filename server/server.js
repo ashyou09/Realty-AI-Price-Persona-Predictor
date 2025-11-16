@@ -13,31 +13,30 @@ const port = process.env.Port;
 
 // CORS configuration - Allow both localhost (development) and production domains
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:5174',
-  'https://realstate-ml-model.vercel.app',
-  process.env.Frontend_URL
-].filter(Boolean); // Remove undefined values
+'http://localhost:5173',
+'http://localhost:5174',
+'http://127.0.0.1:5173',
+'http://127.0.0.1:5174',
+'https://realstate-ml-model.vercel.app',
+process.env.Frontend_URL
+].filter(Boolean);
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      return callback(null, true);
-    }
+origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
     
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
+    // Check if origin is allowed
+    if (allowedOrigins.indexOf(origin) !== -1) {
+    callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+    callback(null, true); // Allow all for now to debug
     }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+},
+credentials: true,
+methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+allowedHeaders: ['Content-Type', 'Authorization'],
+optionsSuccessStatus: 200
 };
 
 // Middleware

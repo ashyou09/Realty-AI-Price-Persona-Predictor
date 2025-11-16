@@ -4,8 +4,12 @@ import axios from 'axios';
 // The URL of your backend server
 const API_URL = 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
 
-// Configure axios to send credentials (cookies)
-axios.defaults.withCredentials = true;
+// Check if running in development
+const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+// Configure axios - disable withCredentials in development to avoid CORS issues
+axios.defaults.withCredentials = !isDevelopment;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // 1. Create the Context
 const AuthContext = createContext();
