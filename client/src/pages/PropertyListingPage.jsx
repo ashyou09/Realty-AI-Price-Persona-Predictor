@@ -213,6 +213,40 @@ export default function PropertyListingPage() {
         try {
             setSavingProperty(property.id);
             
+            // If already saved, remove it (unlike)
+            if (savedProperties.has(property.id)) {
+                // Find the matching saved property in the database by title/address
+                const res = await axios.get(`${API_BASE_URL}/properties`, {
+                    withCredentials: true
+                });
+                
+                if (res.data.success && res.data.properties) {
+                    // Find the property that matches this housing property
+                    const savedProp = res.data.properties.find(p => {
+                        const savedTitle = (p.title || '').toLowerCase().trim();
+                        const propTitle = (property.address || '').toLowerCase().trim();
+                        return savedTitle === propTitle && p.source === 'wishlist';
+                    });
+                    
+                    if (savedProp) {
+                        // Delete the saved property
+                        await axios.delete(`${API_BASE_URL}/properties/${savedProp._id}`, {
+                            withCredentials: true
+                        });
+                        
+                        setSavedProperties(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete(property.id);
+                            return newSet;
+                        });
+                        alert('❌ Property removed from My Properties!');
+                        return;
+                    }
+                }
+                throw new Error('Could not find property to remove');
+            }
+            
+            // Otherwise, save it (like)
             // Map housing property to property model format
             // Estimate location_score based on price (higher price = better location)
             // Scale price to 1-10 range (assuming max price around 50Cr = 500000000)
@@ -248,11 +282,11 @@ export default function PropertyListingPage() {
                 alert('Failed to save property: ' + (res.data.message || 'Unknown error'));
             }
         } catch (err) {
-            console.error('Error saving property:', err);
+            console.error('Error toggling property save:', err);
             if (err.response?.status === 401) {
                 alert('Please login to save properties');
             } else {
-                alert('Failed to save property: ' + (err.response?.data?.message || err.message));
+                alert('Failed to toggle property: ' + (err.response?.data?.message || err.message));
             }
         } finally {
             setSavingProperty(null);
@@ -516,13 +550,13 @@ export default function PropertyListingPage() {
                                         {/* Like Button */}
                                         <button
                                             onClick={(e) => handleLikeProperty(property, e)}
-                                            disabled={savingProperty === property.id || savedProperties.has(property.id)}
+                                            disabled={savingProperty === property.id}
                                             className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-lg transition-all duration-200 ${
                                                 savedProperties.has(property.id)
-                                                    ? 'bg-red-500 text-white'
+                                                    ? 'bg-red-500 text-white hover:bg-red-600'
                                                     : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-600'
-                                            } ${savingProperty === property.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            title={savedProperties.has(property.id) ? 'Saved to My Properties' : 'Save to My Properties'}
+                                            } ${savingProperty === property.id ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'}`}
+                                            title={savedProperties.has(property.id) ? 'Click to remove from My Properties' : 'Save to My Properties'}
                                         >
                                             {savingProperty === property.id ? (
                                                 <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -674,13 +708,13 @@ export default function PropertyListingPage() {
                                     e.stopPropagation();
                                     handleLikeProperty(selectedProperty, e);
                                 }}
-                                disabled={savingProperty === selectedProperty?.id || savedProperties.has(selectedProperty?.id)}
+                                disabled={savingProperty === selectedProperty?.id}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                                     savedProperties.has(selectedProperty?.id)
-                                        ? 'bg-red-500 text-white'
+                                        ? 'bg-red-500 text-white hover:bg-red-600'
                                         : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
-                                } ${savingProperty === selectedProperty?.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                title={savedProperties.has(selectedProperty?.id) ? 'Saved to My Properties' : 'Save to My Properties'}
+                                } ${savingProperty === selectedProperty?.id ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'}`}
+                                title={savedProperties.has(selectedProperty?.id) ? 'Click to remove from My Properties' : 'Save to My Properties'}
                             >
                                 {savingProperty === selectedProperty?.id ? (
                                     <>
