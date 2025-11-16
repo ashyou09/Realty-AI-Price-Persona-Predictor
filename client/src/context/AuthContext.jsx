@@ -1,14 +1,17 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// The URL of your backend server
-const API_URL = 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
-
 // Check if running in development
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// Configure axios - disable withCredentials in development to avoid CORS issues
-axios.defaults.withCredentials = !isDevelopment;
+// The URL of your backend server
+// Use relative paths in development (proxied by Vite), absolute URL in production
+const API_URL = isDevelopment 
+? '/api/auth' 
+: 'https://realty-ai-price-persona-predictor.onrender.com/api/auth';
+
+// Configure axios
+axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // 1. Create the Context
