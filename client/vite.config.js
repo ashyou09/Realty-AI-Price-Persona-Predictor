@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://realty-ai-price-persona-predictor.onrender.com/',
+        target: 'https://realty-ai-price-persona-predictor.onrender.com',
         changeOrigin: true,
         secure: false,
       },
