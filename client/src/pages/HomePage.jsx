@@ -177,13 +177,13 @@ return (
         </div>
     </div>
 
-    {/* Why Choose RealtyAI Section */}
+    {/* Why Choose EstateVerse Section */}
     <div id="why-choose" className="bg-[#e3e3ff] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose RealtyAI?</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose EstateVerse?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover the powerful features that make RealtyAI the smartest choice for property analysis
+            Discover the powerful features that make EstateVerse the smartest choice for property analysis
             </p>
         </div>
 
@@ -359,7 +359,7 @@ return (
             ))}
             </div>
             <p className="text-gray-700 mb-6 leading-relaxed">
-                "RealtyAI has transformed how I analyze properties. The AI predictions are incredibly accurate and have helped me make better investment decisions."
+                "EstateVerse has transformed how I analyze properties. The AI predictions are incredibly accurate and have helped me make better investment decisions."
             </p>
             <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
@@ -382,7 +382,7 @@ return (
             ))}
             </div>
             <p className="text-gray-700 mb-6 leading-relaxed">
-                "The speed and accuracy of RealtyAI is unmatched. It saves me hours of research and provides insights I would have missed otherwise."
+                "The speed and accuracy of EstateVerse is unmatched. It saves me hours of research and provides insights I would have missed otherwise."
             </p>
             <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
@@ -405,7 +405,7 @@ return (
             ))}
             </div>
             <p className="text-gray-700 mb-6 leading-relaxed">
-                "As a first-time buyer, RealtyAI gave me the confidence to make informed decisions. The interface is intuitive and the insights are invaluable."
+                "As a first-time buyer, EstateVerse gave me the confidence to make informed decisions. The interface is intuitive and the insights are invaluable."
             </p>
             <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
@@ -426,7 +426,7 @@ return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-bold text-white mb-4">Start Your Smart Property Journey Now!</h2>
         <p className="text-xl text-indigo-100 mb-8">
-            Join thousands of investors and professionals who trust RealtyAI for intelligent property decisions
+            Join thousands of investors and professionals who trust EstateVerse for intelligent property decisions
         </p>
         {!isAuthenticated ? (
             <Link

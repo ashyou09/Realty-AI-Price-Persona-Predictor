@@ -38,7 +38,7 @@ return (
         <div className="flex items-center justify-between h-16">
         <Link to="/" className="flex items-center space-x-2 group">
             <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:from-indigo-700 group-hover:to-purple-700 transition-all duration-200">
-            Realty<span className="text-indigo-600">AI</span>
+            EstateVerse
             </div>
         </Link>
 
