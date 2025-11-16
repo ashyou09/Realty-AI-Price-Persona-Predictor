@@ -6,10 +6,10 @@ export const register = async(req,res)=>{
 
     const{name,email,password} = req.body;
 
-    console.log('Registration request:', { name, email, hasPassword: !!password });
+    // console.log('Registration request:', { name, email, hasPassword: !!password });
 
     if(!name || !email || !password){
-        console.log('Missing fields:', { name: !!name, email: !!email, password: !!password });
+        // console.log('Missing fields:', { name: !!name, email: !!email, password: !!password });
         return res.status(400).json({success: false,message:'All fields are required'})
     }
 
@@ -32,17 +32,17 @@ export const register = async(req,res)=>{
             password: hashedPassword
         };
         
-        console.log('Creating user with data:', { name: userData.name, email: userData.email, hasPassword: !!userData.password });
+        // console.log('Creating user with data:', { name: userData.name, email: userData.email, hasPassword: !!userData.password });
         
         const user = new userModel(userData);
         const savedUser = await user.save();
         
-        console.log('User saved successfully:', { 
-            id: savedUser._id, 
-            name: savedUser.name, 
-            email: savedUser.email,
-            hasName: !!savedUser.name 
-        });
+        // console.log('User saved successfully:', { 
+        //     id: savedUser._id, 
+        //     name: savedUser.name, 
+        //     email: savedUser.email,
+        //     hasName: !!savedUser.name 
+        // });
         
         // Verify the saved user has name field by fetching from DB
         const verifyUser = await userModel.findById(savedUser._id);
