@@ -11,10 +11,39 @@ import housingRoutes from "./routes/housingRoutes.js";
 const app = express();
 const port = process.env.Port;
 
+// CORS configuration - Allow both localhost (development) and production domains
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'https://realstate-ml-model.vercel.app',
+  process.env.Frontend_URL
+].filter(Boolean); // Remove undefined values
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: process.env.Frontend_URL , credentials: true }));
+app.use(cors(corsOptions));
 
 // Connect to MongoDB
 connectDB();
