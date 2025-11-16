@@ -239,7 +239,6 @@ export default function PropertyListingPage() {
                             newSet.delete(property.id);
                             return newSet;
                         });
-                        alert('❌ Property removed from My Properties!');
                         return;
                     }
                 }
@@ -274,8 +273,6 @@ export default function PropertyListingPage() {
 
             if (res.data.success) {
                 setSavedProperties(prev => new Set([...prev, property.id]));
-                // Show success message
-                alert('✅ Property saved to My Properties!');
                 // Refresh saved properties list to ensure consistency
                 fetchSavedProperties();
             } else {
