@@ -1,9 +1,9 @@
-# Realty-AI: Price & Persona Predictor
+# EstateVerse: Price & Persona Predictor
 
 
-**(Live Demo Link: [Add Your Deployed URL Here])**
+https://realestate-ml-model.vercel.app
 
-Realty-AI is a full-stack, data-driven application designed to solve two major challenges for real estate agents: accurate property pricing and targeted buyer identification. By leveraging machine learning, this tool provides instant price estimates and suggests ideal customer personas, empowering agents to make faster, evidence-based decisions.
+EstateVerse is a full-stack, data-driven application designed to solve two major challenges for real estate agents: accurate property pricing and targeted buyer identification. By leveraging machine learning, this tool provides instant price estimates and suggests ideal customer personas, empowering agents to make faster, evidence-based decisions.
 
 ---
 
