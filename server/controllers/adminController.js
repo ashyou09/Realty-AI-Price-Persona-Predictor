@@ -6,6 +6,12 @@ export const getAllUsers = async (req, res) => {
     try {
         // Check if user is admin
         const user = await userModel.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
         if (user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
@@ -14,16 +20,17 @@ export const getAllUsers = async (req, res) => {
         }
 
         const users = await userModel.find().select('-password');
+        console.log(`✅ Retrieved ${users.length} users from database`);
         res.json({
             success: true,
             users,
             total: users.length
         });
     } catch (error) {
-        console.error('Get all users error:', error);
+        console.error('❌ Get all users error:', error.message);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Failed to fetch users: ' + error.message
         });
     }
 };
