@@ -4,6 +4,7 @@ import 'dotenv/config';
 import cookieParser from "cookie-parser";
 import connectDB from './config/mongodb.js';
 import authRouter from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import predictRoutes from "./routes/predictRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import housingRoutes from "./routes/housingRoutes.js";
@@ -61,6 +62,7 @@ app.use('/api/housing', housingRoutes); // Public housing data
 // Protected routes (require authentication)
 app.use("/api/predict", predictRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.listen(port, () => {
     console.log(`Server started on Port: ${port}`);

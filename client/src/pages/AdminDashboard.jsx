@@ -8,20 +8,15 @@ export default function AdminDashboard() {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [userProperties, setUserProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showPropertyForm, setShowPropertyForm] = useState(false);
-    const [editingProperty, setEditingProperty] = useState(null);
+    const [showUserForm, setShowUserForm] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
     const [formData, setFormData] = useState({
-        title: '',
-        sqft: '',
-        bedrooms: '',
-        bathrooms: '',
-        location_score: '',
-        age: '',
-        price: ''
+        name: '',
+        email: '',
+        password: '',
+        role: 'user'
     });
 
     // Check if user is admin
@@ -39,7 +34,7 @@ export default function AdminDashboard() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}/auth/users`, {
+            const res = await axios.get(`${API_BASE_URL}/admin/users`, {
                 withCredentials: true
             });
             if (res.data.success && res.data.users) {
@@ -50,60 +45,9 @@ export default function AdminDashboard() {
             }
         } catch (err) {
             console.error('Error fetching users:', err);
+            alert(err.response?.data?.message || 'Failed to fetch users');
         } finally {
             setLoading(false);
-        }
-    };
-
-    // Delete user
-    const deleteUser = async (userId, userName) => {
-        // Prevent admin from deleting themselves
-        if (user && user.id === userId) {
-            alert('You cannot delete your own admin account!');
-            return;
-        }
-        
-        if (!confirm(`Are you sure you want to delete ${userName}? All their properties will be deleted as well.`)) return;
-        
-        try {
-            const res = await axios.delete(`${API_BASE_URL}/auth/users/${userId}`, {
-                withCredentials: true
-            });
-            
-            if (res.data.success) {
-                alert('User deleted successfully!');
-                setSelectedUser(null);
-                setUserProperties([]);
-                fetchUsers(); // Refresh user list
-            }
-        } catch (err) {
-            console.error('Delete user error:', err);
-            alert(err.response?.data?.message || 'Failed to delete user');
-        }
-    };
-
-    // Fetch user properties when user is selected
-    const selectUser = async (selectedUser) => {
-        setSelectedUser(selectedUser);
-        setUserProperties([]);
-        setEditingProperty(null);
-        setShowPropertyForm(false);
-        try {
-            console.log('Fetching properties for user:', selectedUser.id);
-            const res = await axios.get(`${API_BASE_URL}/properties?userId=${selectedUser.id}`, {
-                withCredentials: true
-            });
-            console.log('Properties response:', res.data);
-            if (res.data.success && res.data.properties) {
-                setUserProperties(res.data.properties);
-                console.log('Properties loaded:', res.data.properties.length);
-            } else {
-                console.warn('Failed to fetch properties:', res.data);
-                setUserProperties([]);
-            }
-        } catch (err) {
-            console.error('Error fetching properties:', err.response?.data || err.message);
-            setUserProperties([]);
         }
     };
 
@@ -119,111 +63,126 @@ export default function AdminDashboard() {
     // Reset form
     const resetForm = () => {
         setFormData({
-            title: '',
-            sqft: '',
-            bedrooms: '',
-            bathrooms: '',
-            location_score: '',
-            age: '',
-            price: ''
+            name: '',
+            email: '',
+            password: '',
+            role: 'user'
         });
-        setEditingProperty(null);
-        setShowPropertyForm(false);
+        setEditingUser(null);
+        setShowUserForm(false);
     };
 
-    // Create property
-    const createProperty = async (e) => {
+    // Create user
+    const createUser = async (e) => {
         e.preventDefault();
-        if (!selectedUser) {
-            alert('Please select a user first');
-            return;
-        }
         try {
-            console.log('Creating property for user:', selectedUser.id);
-            const res = await axios.post(`${API_BASE_URL}/properties`, {
-                ...formData,
-                sqft: parseFloat(formData.sqft),
-                bedrooms: parseInt(formData.bedrooms),
-                bathrooms: parseInt(formData.bathrooms),
-                location_score: parseFloat(formData.location_score),
-                age: parseInt(formData.age),
-                price: parseFloat(formData.price) || 0,
-                userId: selectedUser.id // Send selected user ID for admin property creation
+            const res = await axios.post(`${API_BASE_URL}/admin/users`, {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                role: formData.role
             }, {
                 withCredentials: true
             });
-            
-            console.log('Create property response:', res.data);
+
             if (res.data.success) {
-                alert('Property created successfully!');
-                selectUser(selectedUser); // Refresh properties
+                alert('User created successfully!');
+                fetchUsers();
                 resetForm();
             } else {
-                alert(res.data.message || 'Failed to create property');
+                alert(res.data.message || 'Failed to create user');
             }
         } catch (err) {
-            console.error('Create property error:', err.response?.data || err.message);
-            alert(err.response?.data?.message || 'Failed to create property');
+            console.error('Create user error:', err);
+            alert(err.response?.data?.message || 'Failed to create user');
         }
     };
 
-    // Update property
-    const updateProperty = async (e) => {
+    // Update user
+    const updateUser = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.put(`${API_BASE_URL}/properties/${editingProperty._id}`, {
-                ...formData,
-                sqft: parseFloat(formData.sqft),
-                bedrooms: parseInt(formData.bedrooms),
-                bathrooms: parseInt(formData.bathrooms),
-                location_score: parseFloat(formData.location_score),
-                age: parseInt(formData.age),
-                price: parseFloat(formData.price) || 0
+            const res = await axios.put(`${API_BASE_URL}/admin/users/${editingUser._id}`, {
+                name: formData.name,
+                email: formData.email,
+                role: formData.role
             }, {
                 withCredentials: true
             });
-            
+
             if (res.data.success) {
-                alert('Property updated successfully!');
-                selectUser(selectedUser); // Refresh properties
+                alert('User updated successfully!');
+                fetchUsers();
                 resetForm();
+            } else {
+                alert(res.data.message || 'Failed to update user');
             }
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to update property');
+            console.error('Update user error:', err);
+            alert(err.response?.data?.message || 'Failed to update user');
         }
     };
 
-    // Delete property
-    const deleteProperty = async (propertyId) => {
-        if (!confirm('Are you sure you want to delete this property?')) return;
-        
+    // Delete user
+    const deleteUser = async (userId, userName) => {
+        // Prevent admin from deleting themselves
+        if (user && user.id === userId) {
+            alert('You cannot delete your own admin account!');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${userName}?`)) return;
+
         try {
-            const res = await axios.delete(`${API_BASE_URL}/properties/${propertyId}`, {
+            const res = await axios.delete(`${API_BASE_URL}/admin/users/${userId}`, {
                 withCredentials: true
             });
-            
+
             if (res.data.success) {
-                alert('Property deleted successfully!');
-                selectUser(selectedUser); // Refresh properties
+                alert('User deleted successfully!');
+                fetchUsers();
             }
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to delete property');
+            console.error('Delete user error:', err);
+            alert(err.response?.data?.message || 'Failed to delete user');
         }
     };
 
-    // Edit property
-    const editProperty = (property) => {
-        setEditingProperty(property);
+    // Update user role
+    const updateUserRole = async (userId, newRole) => {
+        // Prevent admin from changing their own role
+        if (user && user.id === userId && newRole !== 'admin') {
+            alert('You cannot remove your own admin privileges!');
+            return;
+        }
+
+        try {
+            const res = await axios.patch(`${API_BASE_URL}/admin/users/${userId}/role`, {
+                role: newRole
+            }, {
+                withCredentials: true
+            });
+
+            if (res.data.success) {
+                alert('User role updated successfully!');
+                fetchUsers();
+            }
+        } catch (err) {
+            console.error('Update role error:', err);
+            alert(err.response?.data?.message || 'Failed to update user role');
+        }
+    };
+
+    // Edit user
+    const editUserHandler = (u) => {
+        setEditingUser(u);
         setFormData({
-            title: property.title,
-            sqft: property.sqft,
-            bedrooms: property.bedrooms,
-            bathrooms: property.bathrooms,
-            location_score: property.location_score,
-            age: property.age,
-            price: property.price || 0
+            name: u.name,
+            email: u.email,
+            password: '',
+            role: u.role
         });
-        setShowPropertyForm(true);
+        setShowUserForm(true);
     };
 
     // Filter users
@@ -247,215 +206,194 @@ export default function AdminDashboard() {
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-                    <p className="text-gray-600">Manage users and their properties</p>
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-2">👨‍💼 Admin Dashboard</h1>
+                        <p className="text-gray-600">Manage all users in the system</p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setShowUserForm(!showUserForm);
+                            setEditingUser(null);
+                            resetForm();
+                        }}
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                    >
+                        + Add New User
+                    </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Users List */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Users ({filteredUsers.length})</h2>
-                            
-                            {/* Search */}
-                            <input
-                                type="text"
-                                placeholder="Search users..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            />
-
-                            {/* Users List */}
-                            <div className="space-y-2 max-h-96 overflow-y-auto">
-                                {filteredUsers.map(u => {
-                                    // Calculate stats from the currently loaded properties
-                                    let propCount = 0;
-                                    let totalValue = 0;
-                                    if (selectedUser?.id === u.id) {
-                                        propCount = userProperties.length;
-                                        totalValue = userProperties.reduce((sum, p) => sum + (p.price || 0), 0);
-                                    }
-                                    
-                                    return (
-                                        <div
-                                            key={u.id}
-                                            className={`p-3 rounded-lg transition-all border-2 ${
-                                                selectedUser?.id === u.id
-                                                    ? 'bg-indigo-600 text-white border-indigo-700'
-                                                    : 'bg-gray-100 text-gray-900 border-transparent hover:bg-gray-200'
-                                            }`}
-                                        >
-                                            <button
-                                                onClick={() => selectUser(u)}
-                                                className="w-full text-left"
-                                            >
-                                                <div className="font-medium">{u.name}</div>
-                                                <div className="text-sm opacity-75">{u.email}</div>
-                                                {selectedUser?.id === u.id && (
-                                                    <div className="text-xs mt-2 grid grid-cols-2 gap-1">
-                                                        <span>📦 Properties: {propCount}</span>
-                                                        <span>💰 Value: ${totalValue.toLocaleString()}</span>
-                                                    </div>
-                                                )}
-                                                <div className="text-xs mt-1">
-                                                    {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
-                                                </div>
-                                            </button>
-                                            <button
-                                                onClick={() => deleteUser(u.id, u.name)}
-                                                className={`w-full mt-2 px-2 py-1 text-sm rounded transition-colors ${
-                                                    selectedUser?.id === u.id
-                                                        ? 'bg-red-600 text-white hover:bg-red-700'
-                                                        : 'bg-red-500 text-white hover:bg-red-600'
-                                                }`}
-                                            >
-                                                🗑️ Remove User
-                                            </button>
-                                        </div>
-                                    );
-                                })}
+                {/* User Form */}
+                {showUserForm && (
+                    <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                            {editingUser ? 'Edit User' : 'Create New User'}
+                        </h2>
+                        <form onSubmit={editingUser ? updateUser : createUser} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder="Full Name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="Email Address"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    />
+                                </div>
+                                {!editingUser && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            placeholder="Password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            required={!editingUser}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+                                )}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                                    <select
+                                        name="role"
+                                        value={formData.role}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    >
+                                        <option value="user">👤 User</option>
+                                        <option value="admin">👨‍💼 Admin</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                            <div className="flex gap-3">
+                                <button
+                                    type="submit"
+                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                                >
+                                    {editingUser ? 'Update User' : 'Create User'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={resetForm}
+                                    className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Users Table */}
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    {/* Search Bar */}
+                    <div className="p-6 border-b border-gray-200">
+                        <input
+                            type="text"
+                            placeholder="🔍 Search by name or email..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        />
                     </div>
 
-                    {/* Properties Panel */}
-                    <div className="lg:col-span-2">
-                        {selectedUser ? (
-                            <div className="bg-white rounded-lg shadow p-6">
-                                <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedUser.name}'s Properties</h2>
-                                    <p className="text-gray-600 text-sm mb-4">{selectedUser.email}</p>
-                                    <button
-                                        onClick={() => {
-                                            setShowPropertyForm(!showPropertyForm);
-                                            resetForm();
-                                        }}
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                                    >
-                                        {showPropertyForm ? 'Cancel' : '+ Add Property'}
-                                    </button>
-                                </div>
-
-                                {/* Property Form */}
-                                {showPropertyForm && (
-                                    <form onSubmit={editingProperty ? updateProperty : createProperty} className="bg-gray-50 p-4 rounded-lg mb-6 space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <input
-                                                type="text"
-                                                name="title"
-                                                placeholder="Property Title"
-                                                value={formData.title}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                name="sqft"
-                                                placeholder="Square Feet"
-                                                value={formData.sqft}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                name="bedrooms"
-                                                placeholder="Bedrooms"
-                                                value={formData.bedrooms}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                name="bathrooms"
-                                                placeholder="Bathrooms"
-                                                value={formData.bathrooms}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                step="0.1"
-                                                name="location_score"
-                                                placeholder="Location Score (1-10)"
-                                                value={formData.location_score}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                name="age"
-                                                placeholder="Age (years)"
-                                                value={formData.age}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                name="price"
-                                                placeholder="Price ($)"
-                                                value={formData.price}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                        >
-                                            {editingProperty ? 'Update Property' : 'Create Property'}
-                                        </button>
-                                    </form>
-                                )}
-
-                                {/* Properties List */}
-                                <div className="space-y-4">
-                                    {userProperties.length === 0 ? (
-                                        <p className="text-gray-500 text-center py-8">No properties found</p>
-                                    ) : (
-                                        userProperties.map(prop => (
-                                            <div key={prop._id} className="bg-gray-50 p-4 rounded-lg">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div className="flex-1">
-                                                        <h3 className="font-bold text-gray-900">{prop.title}</h3>
-                                                        <p className="text-sm text-gray-600">{prop.sqft} sqft • {prop.bedrooms} BD • {prop.bathrooms} BA</p>
-                                                        <p className="text-lg font-semibold text-indigo-600 mt-1">💰 ${(prop.price || 0).toLocaleString()}</p>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => editProperty(prop)}
-                                                            className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => deleteProperty(prop._id)}
-                                                            className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
+                    {/* Users List */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-100 border-b border-gray-200">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Joined</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredUsers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                            No users found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredUsers.map(u => (
+                                        <tr key={u._id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-gray-900">{u.name}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-gray-600">{u.email}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <select
+                                                    value={u.role}
+                                                    onChange={(e) => updateUserRole(u._id, e.target.value)}
+                                                    disabled={user && user.id === u._id}
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                        u.role === 'admin'
+                                                            ? 'bg-purple-100 text-purple-800'
+                                                            : 'bg-blue-100 text-blue-800'
+                                                    } ${user && user.id === u._id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                >
+                                                    <option value="user">👤 User</option>
+                                                    <option value="admin">👨‍💼 Admin</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm text-gray-600">
+                                                    {new Date(u.createdAt).toLocaleDateString()}
                                                 </div>
-                                                <p className="text-xs text-gray-500">Score: {prop.location_score} | Age: {prop.age} years</p>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-lg shadow p-12 text-center">
-                                <p className="text-gray-500">Select a user to view their properties</p>
-                            </div>
-                        )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => editUserHandler(u)}
+                                                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                                                    >
+                                                        ✏️ Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteUser(u._id, u.name)}
+                                                        disabled={user && user.id === u._id}
+                                                        className={`px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors ${
+                                                            user && user.id === u._id ? 'opacity-50 cursor-not-allowed' : ''
+                                                        }`}
+                                                    >
+                                                        🗑️ Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <p className="text-sm text-gray-600">
+                            Total Users: <span className="font-bold text-gray-900">{users.length}</span> | 
+                            Showing: <span className="font-bold text-gray-900">{filteredUsers.length}</span>
+                        </p>
                     </div>
                 </div>
             </div>
