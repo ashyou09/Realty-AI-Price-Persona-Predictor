@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import PricePredictor from './PricePredictor';
 import PropertyList from '../components/PropertyList';
 import AddPropertyModal from '../components/AddPropertyModal';
+import EditPropertyModal from '../components/EditPropertyModal';
 
 function DashboardPage() {
 const { user, token } = useContext(AuthContext);
@@ -14,34 +15,46 @@ const [properties, setProperties] = useState([]);
 const [loading, setLoading] = useState(true);
 const [refreshTrigger, setRefreshTrigger] = useState(0);
 const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const [editingProperty, setEditingProperty] = useState(null);
 
 // Fetch properties on mount and when refreshTrigger changes
 useEffect(() => {
-    fetchProperties();
-}, [refreshTrigger, token]);
-
-const fetchProperties = async () => {
-    if (!token && !user) return;
-    
-    try {
-        setLoading(true);
-        const res = await axios.get(`${API_BASE_URL}/properties`, {
-            withCredentials: true
-        });
-        if (res.data.success) {
-            setProperties(res.data.properties || []);
+    const fetchProperties = async () => {
+        if (!token && !user) return;
+        
+        try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE_URL}/properties`, {
+                withCredentials: true
+            });
+            if (res.data.success) {
+                setProperties(res.data.properties || []);
+            }
+        } catch (err) {
+            console.error('Error fetching properties:', err);
+            setProperties([]);
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error('Error fetching properties:', err);
-        setProperties([]);
-    } finally {
-        setLoading(false);
-    }
-};
+    };
+
+    fetchProperties();
+}, [refreshTrigger, token, user]);
 
 // Function to trigger refresh (called after property is saved)
 const handlePropertySaved = () => {
     setRefreshTrigger(prev => prev + 1);
+};
+
+const handleEditProperty = (property) => {
+    setEditingProperty(property);
+    setIsEditModalOpen(true);
+};
+
+const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingProperty(null);
 };
 
 return (
@@ -182,6 +195,7 @@ return (
             <PropertyList 
                 refreshTrigger={refreshTrigger} 
                 onPropertyChange={() => setRefreshTrigger(prev => prev + 1)}
+                onEditProperty={handleEditProperty}
             />
         )}
         </div>
@@ -193,6 +207,16 @@ return (
             onSuccess={() => {
                 setRefreshTrigger(prev => prev + 1);
             }}
+        />
+
+        {/* Edit Property Modal */}
+        <EditPropertyModal
+            isOpen={isEditModalOpen}
+            onClose={handleCloseEditModal}
+            onSuccess={() => {
+                setRefreshTrigger(prev => prev + 1);
+            }}
+            property={editingProperty}
         />
     </div>
     </div>

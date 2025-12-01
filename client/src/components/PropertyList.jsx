@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
+import { AuthContext } from '../context/AuthContext';
 // Import property images
 import N1 from '../assets/N1.jpeg';
 import N2 from '../assets/N2.jpeg';
@@ -21,7 +22,8 @@ const getPropertyImage = (propertyId) => {
     return propertyImages[index];
 };
 
-export default function PropertyList({ refreshTrigger, onPropertyChange }) {
+export default function PropertyList({ refreshTrigger, onPropertyChange, onEditProperty }) {
+    const { user } = useContext(AuthContext);
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -245,13 +247,24 @@ export default function PropertyList({ refreshTrigger, onPropertyChange }) {
                                 alt={property.title}
                                 className="w-full h-full object-cover"
                             />
-                            <button
-                                onClick={() => handleDelete(property._id)}
-                                className="absolute top-2 right-2 p-1 bg-[#f9f6b0] rounded-full shadow-md hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
-                                title="Delete property"
-                            >
-                                🗑️
-                            </button>
+                            <div className="absolute top-2 right-2 flex gap-1">
+                                {user && user.role === 'admin' && (
+                                    <button
+                                        onClick={() => onEditProperty(property)}
+                                        className="p-1 bg-[#b3d9ff] rounded-full shadow-md hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 transition-colors"
+                                        title="Edit property"
+                                    >
+                                        ✏️
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => handleDelete(property._id)}
+                                    className="p-1 bg-[#f9f6b0] rounded-full shadow-md hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
+                                    title="Delete property"
+                                >
+                                    🗑️
+                                </button>
+                            </div>
                         </div>
                         
                         {/* Property Details */}
