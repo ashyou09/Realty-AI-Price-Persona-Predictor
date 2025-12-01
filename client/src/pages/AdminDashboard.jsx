@@ -10,8 +10,8 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showUserForm, setShowUserForm] = useState(false);
-    const [editingUser, setEditingUser] = useState(null);
+    const [showForm, setShowForm] = useState(false);
+    const [editingUserId, setEditingUserId] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -40,8 +40,6 @@ export default function AdminDashboard() {
             if (res.data.success && res.data.users) {
                 setUsers(res.data.users);
                 console.log('Users loaded:', res.data.users);
-            } else {
-                console.error('Failed to fetch users');
             }
         } catch (err) {
             console.error('Error fetching users:', err);
@@ -51,7 +49,6 @@ export default function AdminDashboard() {
         }
     };
 
-    // Handle form input changes
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -60,7 +57,6 @@ export default function AdminDashboard() {
         }));
     };
 
-    // Reset form
     const resetForm = () => {
         setFormData({
             name: '',
@@ -68,17 +64,22 @@ export default function AdminDashboard() {
             password: '',
             role: 'user'
         });
-        setEditingUser(null);
-        setShowUserForm(false);
+        setEditingUserId(null);
+        setShowForm(false);
     };
 
-    // Create or update user
-    const handleCreateOrUpdateUser = async (e) => {
+    const handleAddNewUser = () => {
+        resetForm();
+        setShowForm(true);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            if (editingUser) {
+            if (editingUserId) {
                 // Update user
-                const res = await axios.put(`${API_BASE_URL}/admin/users/${editingUser._id}`, {
+                const res = await axios.put(`${API_BASE_URL}/admin/users/${editingUserId}`, {
                     name: formData.name,
                     email: formData.email,
                     role: formData.role
@@ -113,16 +114,25 @@ export default function AdminDashboard() {
                 }
             }
         } catch (err) {
-            console.error('User operation error:', err);
-            alert(err.response?.data?.message || 'Failed to save user');
+            console.error('Error:', err);
+            alert(err.response?.data?.message || 'Operation failed');
         }
     };
 
-    // Delete user
-    const deleteUser = async (userId, userName) => {
-        // Prevent admin from deleting themselves
-        if (user && user.id === userId) {
-            alert('You cannot delete your own admin account!');
+    const handleEdit = (userData) => {
+        setEditingUserId(userData._id);
+        setFormData({
+            name: userData.name,
+            email: userData.email,
+            password: '',
+            role: userData.role
+        });
+        setShowForm(true);
+    };
+
+    const handleDelete = async (userId, userName) => {
+        if (user.id === userId) {
+            alert('You cannot delete your own account!');
             return;
         }
 
@@ -136,26 +146,15 @@ export default function AdminDashboard() {
             if (res.data.success) {
                 alert('User deleted successfully!');
                 fetchUsers();
+            } else {
+                alert(res.data.message || 'Failed to delete user');
             }
         } catch (err) {
-            console.error('Delete user error:', err);
+            console.error('Delete error:', err);
             alert(err.response?.data?.message || 'Failed to delete user');
         }
     };
 
-    // Edit user
-    const editUserHandler = (u) => {
-        setEditingUser(u);
-        setFormData({
-            name: u.name,
-            email: u.email,
-            password: '',
-            role: u.role
-        });
-        setShowUserForm(true);
-    };
-
-    // Filter users
     const filteredUsers = users.filter(u => {
         const query = searchQuery.toLowerCase();
         return u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query);
@@ -182,11 +181,7 @@ export default function AdminDashboard() {
                         <p className="text-gray-600">Manage all users in the system</p>
                     </div>
                     <button
-                        onClick={() => {
-                            setShowUserForm(!showUserForm);
-                            setEditingUser(null);
-                            resetForm();
-                        }}
+                        onClick={handleAddNewUser}
                         className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
                     >
                         + Add New User
@@ -194,12 +189,12 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* User Form */}
-                {showUserForm && (
+                {showForm && (
                     <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                            {editingUser ? 'Edit User' : 'Create New User'}
+                            {editingUserId ? 'Edit User' : 'Create New User'}
                         </h2>
-                        <form onSubmit={handleCreateOrUpdateUser} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
@@ -225,7 +220,7 @@ export default function AdminDashboard() {
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                     />
                                 </div>
-                                {!editingUser && (
+                                {!editingUserId && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
                                         <input
@@ -234,7 +229,7 @@ export default function AdminDashboard() {
                                             placeholder="Password"
                                             value={formData.password}
                                             onChange={handleInputChange}
-                                            required={!editingUser}
+                                            required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
@@ -257,7 +252,7 @@ export default function AdminDashboard() {
                                     type="submit"
                                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                                 >
-                                    {editingUser ? 'Update User' : 'Create User'}
+                                    {editingUserId ? 'Update User' : 'Create User'}
                                 </button>
                                 <button
                                     type="button"
@@ -329,13 +324,13 @@ export default function AdminDashboard() {
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => editUserHandler(u)}
+                                                        onClick={() => handleEdit(u)}
                                                         className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
                                                     >
                                                         ✏️ Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => deleteUser(u._id, u.name)}
+                                                        onClick={() => handleDelete(u._id, u.name)}
                                                         disabled={user && user.id === u._id}
                                                         className={`px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors ${
                                                             user && user.id === u._id ? 'opacity-50 cursor-not-allowed' : ''
