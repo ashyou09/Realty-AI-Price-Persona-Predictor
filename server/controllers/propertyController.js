@@ -1,9 +1,13 @@
 import Property from '../models/property.js';
 
-// Get all properties for the authenticated user
+// Get all properties for the authenticated user or for a specific user (if admin)
 export const getProperties = async (req, res) => {
     try {
-        const properties = await Property.find({ ownerId: req.userId })
+        // If userId query param is provided, use that (admin viewing another user's properties)
+        // Otherwise, use authenticated user's ID
+        const userId = req.query.userId || req.userId;
+        
+        const properties = await Property.find({ ownerId: userId })
             .sort({ createdAt: -1 });
         
         return res.json({
