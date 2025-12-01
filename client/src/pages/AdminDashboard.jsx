@@ -11,11 +11,9 @@ export default function AdminDashboard() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [userProperties, setUserProperties] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [showPropertyForm, setShowPropertyForm] = useState(false);
     const [editingProperty, setEditingProperty] = useState(null);
-    const [userStats, setUserStats] = useState({}); // Store property counts and values for each user
     const [formData, setFormData] = useState({
         title: '',
         sqft: '',
@@ -47,38 +45,11 @@ export default function AdminDashboard() {
             if (res.data.success && res.data.users) {
                 setUsers(res.data.users);
                 console.log('Users loaded:', res.data.users);
-                
-                // Fetch properties for all users to calculate stats
-                const statsMap = {};
-                for (const usr of res.data.users) {
-                    try {
-                        console.log(`Fetching properties for user ${usr.name} (${usr.id})`);
-                        const propsRes = await axios.get(`${API_BASE_URL}/properties?userId=${usr.id}`, {
-                            withCredentials: true
-                        });
-                        console.log(`Properties response for ${usr.name}:`, propsRes.data);
-                        if (propsRes.data.success && propsRes.data.properties) {
-                            statsMap[usr.id] = {
-                                count: propsRes.data.properties.length,
-                                totalValue: propsRes.data.properties.reduce((sum, p) => sum + (p.price || 0), 0)
-                            };
-                        } else {
-                            statsMap[usr.id] = { count: 0, totalValue: 0 };
-                        }
-                    } catch (err) {
-                        console.error(`Error fetching properties for user ${usr.id}:`, err.response?.data || err.message);
-                        statsMap[usr.id] = { count: 0, totalValue: 0 };
-                    }
-                }
-                console.log('Final stats:', statsMap);
-                setUserStats(statsMap);
-                setError(null);
             } else {
-                setError('Failed to fetch users');
+                console.error('Failed to fetch users');
             }
         } catch (err) {
             console.error('Error fetching users:', err);
-            setError(err.response?.data?.message || 'Failed to load users');
         } finally {
             setLoading(false);
         }
@@ -299,7 +270,13 @@ export default function AdminDashboard() {
                             {/* Users List */}
                             <div className="space-y-2 max-h-96 overflow-y-auto">
                                 {filteredUsers.map(u => {
-                                    const stats = userStats[u.id] || { count: 0, totalValue: 0 };
+                                    // Calculate stats from the currently loaded properties
+                                    let propCount = 0;
+                                    let totalValue = 0;
+                                    if (selectedUser?.id === u.id) {
+                                        propCount = userProperties.length;
+                                        totalValue = userProperties.reduce((sum, p) => sum + (p.price || 0), 0);
+                                    }
                                     
                                     return (
                                         <div
@@ -316,10 +293,12 @@ export default function AdminDashboard() {
                                             >
                                                 <div className="font-medium">{u.name}</div>
                                                 <div className="text-sm opacity-75">{u.email}</div>
-                                                <div className="text-xs mt-2 grid grid-cols-2 gap-1">
-                                                    <span>📦 Properties: {stats.count}</span>
-                                                    <span>💰 Value: ${stats.totalValue.toLocaleString()}</span>
-                                                </div>
+                                                {selectedUser?.id === u.id && (
+                                                    <div className="text-xs mt-2 grid grid-cols-2 gap-1">
+                                                        <span>📦 Properties: {propCount}</span>
+                                                        <span>💰 Value: ${totalValue.toLocaleString()}</span>
+                                                    </div>
+                                                )}
                                                 <div className="text-xs mt-1">
                                                     {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
                                                 </div>
