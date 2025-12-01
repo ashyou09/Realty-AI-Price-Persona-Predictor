@@ -1,9 +1,7 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import EditPropertyModal from '../components/EditPropertyModal';
 // Import property images
 import N1 from '../assets/N1.jpeg';
 import N2 from '../assets/N2.jpeg';
@@ -26,7 +24,6 @@ const getPropertyImage = (propertyId) => {
 
 export default function PropertyListingPage() {
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
     const [properties, setProperties] = useState([]);
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -65,10 +62,6 @@ export default function PropertyListingPage() {
     // Like/Save property state
     const [savingProperty, setSavingProperty] = useState(null);
     const [savedProperties, setSavedProperties] = useState(new Set());
-    
-    // Edit property modal state
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingProperty, setEditingProperty] = useState(null);
 
     // Fetch properties
     useEffect(() => {
@@ -229,16 +222,6 @@ export default function PropertyListingPage() {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedProperty(null);
-    };
-
-    const handleEditProperty = () => {
-        setEditingProperty(selectedProperty);
-        setIsEditModalOpen(true);
-    };
-
-    const handleCloseEditModal = () => {
-        setIsEditModalOpen(false);
-        setEditingProperty(null);
     };
 
     const handleLikeProperty = async (property, e) => {
@@ -953,14 +936,6 @@ export default function PropertyListingPage() {
 
                         {/* Modal Footer */}
                         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                            {user && user.role === 'admin' && (
-                                <button
-                                    onClick={handleEditProperty}
-                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-                                >
-                                    ✏️ Edit
-                                </button>
-                            )}
                             <button
                                 onClick={closeModal}
                                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
@@ -972,18 +947,6 @@ export default function PropertyListingPage() {
                 </div>
             </div>
             )}
-
-            {/* Edit Property Modal */}
-            <EditPropertyModal
-                isOpen={isEditModalOpen}
-                onClose={handleCloseEditModal}
-                onSuccess={() => {
-                    // Close both modals
-                    handleCloseEditModal();
-                    closeModal();
-                }}
-                property={editingProperty}
-            />
         </div>
     );
 }

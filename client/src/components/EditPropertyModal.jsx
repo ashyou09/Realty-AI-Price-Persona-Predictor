@@ -39,6 +39,12 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
         e.preventDefault();
         setError('');
 
+        // Validation - check if property has valid ID
+        if (!property || !property._id) {
+            setError('Cannot edit this property - missing ID');
+            return;
+        }
+
         // Validation
         if (!formData.title || !formData.sqft || !formData.bedrooms || 
             formData.bathrooms === '' || !formData.location_score || 
