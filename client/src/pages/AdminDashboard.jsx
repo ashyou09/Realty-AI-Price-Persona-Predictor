@@ -291,6 +291,7 @@ export default function AdminDashboard() {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Joined</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                                 </tr>
@@ -298,7 +299,7 @@ export default function AdminDashboard() {
                             <tbody>
                                 {filteredUsers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                                             No users found
                                         </td>
                                     </tr>
@@ -310,6 +311,15 @@ export default function AdminDashboard() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-gray-600">{u.email}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                    u.role === 'admin'
+                                                        ? 'bg-purple-100 text-purple-800'
+                                                        : 'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                    {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-600">
