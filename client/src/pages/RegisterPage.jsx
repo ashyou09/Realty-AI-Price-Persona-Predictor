@@ -6,6 +6,7 @@ function RegisterPage() {
 const [name, setName] = useState('');
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
+const [role, setRole] = useState('user');
 const [showPassword, setShowPassword] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
@@ -26,7 +27,7 @@ const handleSubmit = async (e) => {
     setLoading(true);
     setError('');
     try {
-    const result = await register(name, email, password);
+    const result = await register(name, email, password, role);
     console.log('Registration result:', result);
     if (result && result.success) {
         // Navigate immediately - AuthContext should have updated state
@@ -128,6 +129,25 @@ return (
                 </label>
             </div>
             <p className="mt-2 text-xs text-gray-500">Must be at least 8 characters</p>
+            </div>
+            <div>
+            <label
+                htmlFor="role"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+                Register as
+            </label>
+            <select
+                id="role"
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            >
+                <option value="user">👤 User</option>
+                <option value="admin">👨‍💼 Admin</option>
+            </select>
+            <p className="mt-2 text-xs text-gray-500">Choose your account type</p>
             </div>
             <button
             type="submit"

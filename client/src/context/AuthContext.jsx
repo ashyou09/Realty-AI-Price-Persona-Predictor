@@ -81,10 +81,10 @@ const verifyAuth = async () => {
 };
 
 // 5. Register Function
-const register = async (name, email, password) => {
+const register = async (name, email, password, role = 'user') => {
     try {
-    console.log('Registering user:', { name, email });
-    const response = await axios.post(`${API_URL}/register`, { name, email, password });
+    console.log('Registering user:', { name, email, role });
+    const response = await axios.post(`${API_URL}/register`, { name, email, password, role });
     console.log('Registration response:', response.data);
     if (response.data.success) {
         const { token: newToken, user: newUser } = response.data;

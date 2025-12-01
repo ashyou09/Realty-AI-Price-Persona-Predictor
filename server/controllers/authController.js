@@ -4,7 +4,7 @@ import userModel from '../models/userModel.js';
 
 export const register = async(req,res)=>{
 
-    const{name,email,password} = req.body;
+    const{name,email,password,role} = req.body;
 
     // console.log('Registration request:', { name, email, hasPassword: !!password });
 
@@ -29,7 +29,8 @@ export const register = async(req,res)=>{
         const userData = {
             name: normalizedName,
             email: normalizedEmail,
-            password: hashedPassword
+            password: hashedPassword,
+            role: role && ['user', 'admin'].includes(role) ? role : 'user'
         };
         
         // console.log('Creating user with data:', { name: userData.name, email: userData.email, hasPassword: !!userData.password });
