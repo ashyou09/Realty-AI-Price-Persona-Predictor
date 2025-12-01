@@ -46,14 +46,17 @@ export default function AdminDashboard() {
             });
             if (res.data.success && res.data.users) {
                 setUsers(res.data.users);
+                console.log('Users loaded:', res.data.users);
                 
                 // Fetch properties for all users to calculate stats
                 const statsMap = {};
                 for (const usr of res.data.users) {
                     try {
+                        console.log(`Fetching properties for user ${usr.name} (${usr.id})`);
                         const propsRes = await axios.get(`${API_BASE_URL}/properties?userId=${usr.id}`, {
                             withCredentials: true
                         });
+                        console.log(`Properties response for ${usr.name}:`, propsRes.data);
                         if (propsRes.data.success && propsRes.data.properties) {
                             statsMap[usr.id] = {
                                 count: propsRes.data.properties.length,
@@ -63,10 +66,11 @@ export default function AdminDashboard() {
                             statsMap[usr.id] = { count: 0, totalValue: 0 };
                         }
                     } catch (err) {
-                        console.error(`Error fetching properties for user ${usr.id}:`, err);
+                        console.error(`Error fetching properties for user ${usr.id}:`, err.response?.data || err.message);
                         statsMap[usr.id] = { count: 0, totalValue: 0 };
                     }
                 }
+                console.log('Final stats:', statsMap);
                 setUserStats(statsMap);
                 setError(null);
             } else {
