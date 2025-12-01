@@ -82,6 +82,12 @@ export default function AdminDashboard() {
 
     // Delete user
     const deleteUser = async (userId, userName) => {
+        // Prevent admin from deleting themselves
+        if (user && user.id === userId) {
+            alert('You cannot delete your own admin account!');
+            return;
+        }
+        
         if (!confirm(`Are you sure you want to delete ${userName}? All their properties will be deleted as well.`)) return;
         
         try {
@@ -96,6 +102,7 @@ export default function AdminDashboard() {
                 fetchUsers(); // Refresh user list
             }
         } catch (err) {
+            console.error('Delete user error:', err);
             alert(err.response?.data?.message || 'Failed to delete user');
         }
     };
@@ -107,14 +114,21 @@ export default function AdminDashboard() {
         setEditingProperty(null);
         setShowPropertyForm(false);
         try {
+            console.log('Fetching properties for user:', selectedUser.id);
             const res = await axios.get(`${API_BASE_URL}/properties?userId=${selectedUser.id}`, {
                 withCredentials: true
             });
+            console.log('Properties response:', res.data);
             if (res.data.success && res.data.properties) {
                 setUserProperties(res.data.properties);
+                console.log('Properties loaded:', res.data.properties.length);
+            } else {
+                console.warn('Failed to fetch properties:', res.data);
+                setUserProperties([]);
             }
         } catch (err) {
-            console.error('Error fetching properties:', err);
+            console.error('Error fetching properties:', err.response?.data || err.message);
+            setUserProperties([]);
         }
     };
 
@@ -145,7 +159,12 @@ export default function AdminDashboard() {
     // Create property
     const createProperty = async (e) => {
         e.preventDefault();
+        if (!selectedUser) {
+            alert('Please select a user first');
+            return;
+        }
         try {
+            console.log('Creating property for user:', selectedUser.id);
             const res = await axios.post(`${API_BASE_URL}/properties`, {
                 ...formData,
                 sqft: parseFloat(formData.sqft),
@@ -159,12 +178,16 @@ export default function AdminDashboard() {
                 withCredentials: true
             });
             
+            console.log('Create property response:', res.data);
             if (res.data.success) {
                 alert('Property created successfully!');
                 selectUser(selectedUser); // Refresh properties
                 resetForm();
+            } else {
+                alert(res.data.message || 'Failed to create property');
             }
         } catch (err) {
+            console.error('Create property error:', err.response?.data || err.message);
             alert(err.response?.data?.message || 'Failed to create property');
         }
     };

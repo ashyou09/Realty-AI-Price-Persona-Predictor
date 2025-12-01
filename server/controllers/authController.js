@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/userModel.js';
+import Property from '../models/property.js';
 
 export const register = async(req,res)=>{
 
@@ -259,10 +260,10 @@ export const deleteUser = async(req,res)=>{
             })
         }
 
-        // Delete user's properties first (if Property model exists)
+        // Delete user's properties first
         try {
-            const Property = require('../models/property.js').default;
             await Property.deleteMany({ ownerId: id });
+            console.log('Properties deleted for user:', id);
         } catch (err) {
             // If property deletion fails, continue with user deletion
             console.log('Note: Could not delete user properties:', err.message);
