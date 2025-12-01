@@ -1,11 +1,17 @@
 import Property from '../models/property.js';
+import mongoose from 'mongoose';
 
 // Get all properties for the authenticated user or for a specific user (if admin)
 export const getProperties = async (req, res) => {
     try {
         // If userId query param is provided, use that (admin viewing another user's properties)
         // Otherwise, use authenticated user's ID
-        const userId = req.query.userId || req.userId;
+        let userId = req.query.userId || req.userId;
+        
+        // Convert to ObjectId if it's a string
+        if (typeof userId === 'string') {
+            userId = new mongoose.Types.ObjectId(userId);
+        }
         
         const properties = await Property.find({ ownerId: userId })
             .sort({ createdAt: -1 });
@@ -87,7 +93,12 @@ export const createProperty = async (req, res) => {
 
         // If admin is creating property for another user, use provided userId
         // Otherwise, use authenticated user's ID
-        const ownerId = userId || req.userId;
+        let ownerId = userId || req.userId;
+        
+        // Ensure ownerId is a valid ObjectId
+        if (typeof ownerId === 'string') {
+            ownerId = new mongoose.Types.ObjectId(ownerId);
+        }
 
         const property = new Property({
             title,
@@ -126,10 +137,18 @@ export const updateProperty = async (req, res) => {
     try {
         const { title, sqft, bedrooms, bathrooms, location_score, age, price, persona, persona_cluster } = req.body;
 
-        const property = await Property.findOne({
-            _id: req.params.id,
-            ownerId: req.userId
-        });
+        // Find property - allow admins to edit any property, users can only edit their own
+        let property;
+        if (req.user && req.user.role === 'admin') {
+            // Admin can edit any property
+            property = await Property.findById(req.params.id);
+        } else {
+            // Regular user can only edit their own properties
+            property = await Property.findOne({
+                _id: req.params.id,
+                ownerId: req.userId
+            });
+        }
 
         if (!property) {
             return res.status(404).json({
@@ -186,10 +205,18 @@ export const updateProperty = async (req, res) => {
 // Delete a property
 export const deleteProperty = async (req, res) => {
     try {
-        const property = await Property.findOneAndDelete({
-            _id: req.params.id,
-            ownerId: req.userId
-        });
+        // Allow admins to delete any property, users can only delete their own
+        let property;
+        if (req.user && req.user.role === 'admin') {
+            // Admin can delete any property
+            property = await Property.findByIdAndDelete(req.params.id);
+        } else {
+            // Regular user can only delete their own properties
+            property = await Property.findOneAndDelete({
+                _id: req.params.id,
+                ownerId: req.userId
+            });
+        }
 
         if (!property) {
             return res.status(404).json({
