@@ -7,12 +7,12 @@ import {
     deleteUser,
     updateUserRole
 } from '../controllers/adminController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 
 const adminRoutes = express.Router();
 
 // All admin routes require authentication
-adminRoutes.use(authMiddleware);
+adminRoutes.use(authenticate);
 
 // Get all users
 adminRoutes.get('/users', getAllUsers);
