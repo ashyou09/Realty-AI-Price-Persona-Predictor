@@ -21,7 +21,8 @@ export default function AdminDashboard() {
         bedrooms: '',
         bathrooms: '',
         location_score: '',
-        age: ''
+        age: '',
+        price: ''
     });
 
     // Check if user is admin
@@ -53,6 +54,26 @@ export default function AdminDashboard() {
             setError(err.response?.data?.message || 'Failed to load users');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Delete user
+    const deleteUser = async (userId, userName) => {
+        if (!confirm(`Are you sure you want to delete ${userName}? All their properties will be deleted as well.`)) return;
+        
+        try {
+            const res = await axios.delete(`${API_BASE_URL}/auth/users/${userId}`, {
+                withCredentials: true
+            });
+            
+            if (res.data.success) {
+                alert('User deleted successfully!');
+                setSelectedUser(null);
+                setUserProperties([]);
+                fetchUsers(); // Refresh user list
+            }
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to delete user');
         }
     };
 
@@ -91,7 +112,8 @@ export default function AdminDashboard() {
             bedrooms: '',
             bathrooms: '',
             location_score: '',
-            age: ''
+            age: '',
+            price: ''
         });
         setEditingProperty(null);
         setShowPropertyForm(false);
@@ -107,7 +129,9 @@ export default function AdminDashboard() {
                 bedrooms: parseInt(formData.bedrooms),
                 bathrooms: parseInt(formData.bathrooms),
                 location_score: parseFloat(formData.location_score),
-                age: parseInt(formData.age)
+                age: parseInt(formData.age),
+                price: parseFloat(formData.price) || 0,
+                userId: selectedUser.id // Send selected user ID for admin property creation
             }, {
                 withCredentials: true
             });
@@ -132,7 +156,8 @@ export default function AdminDashboard() {
                 bedrooms: parseInt(formData.bedrooms),
                 bathrooms: parseInt(formData.bathrooms),
                 location_score: parseFloat(formData.location_score),
-                age: parseInt(formData.age)
+                age: parseInt(formData.age),
+                price: parseFloat(formData.price) || 0
             }, {
                 withCredentials: true
             });
@@ -174,7 +199,8 @@ export default function AdminDashboard() {
             bedrooms: property.bedrooms,
             bathrooms: property.bathrooms,
             location_score: property.location_score,
-            age: property.age
+            age: property.age,
+            price: property.price || 0
         });
         setShowPropertyForm(true);
     };
@@ -222,23 +248,49 @@ export default function AdminDashboard() {
 
                             {/* Users List */}
                             <div className="space-y-2 max-h-96 overflow-y-auto">
-                                {filteredUsers.map(u => (
-                                    <button
-                                        key={u.id}
-                                        onClick={() => selectUser(u)}
-                                        className={`w-full text-left p-3 rounded-lg transition-all ${
-                                            selectedUser?.id === u.id
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                                        }`}
-                                    >
-                                        <div className="font-medium">{u.name}</div>
-                                        <div className="text-sm opacity-75">{u.email}</div>
-                                        <div className="text-xs mt-1">
-                                            {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
+                                {filteredUsers.map(u => {
+                                    const userProps = users.flatMap((user) => 
+                                        user.id === u.id ? (userProperties || []) : []
+                                    ) || [];
+                                    const propCount = userProps.length;
+                                    const totalValue = userProps.reduce((sum, p) => sum + (p.price || 0), 0);
+                                    
+                                    return (
+                                        <div
+                                            key={u.id}
+                                            className={`p-3 rounded-lg transition-all border-2 ${
+                                                selectedUser?.id === u.id
+                                                    ? 'bg-indigo-600 text-white border-indigo-700'
+                                                    : 'bg-gray-100 text-gray-900 border-transparent hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            <button
+                                                onClick={() => selectUser(u)}
+                                                className="w-full text-left"
+                                            >
+                                                <div className="font-medium">{u.name}</div>
+                                                <div className="text-sm opacity-75">{u.email}</div>
+                                                <div className="text-xs mt-2 grid grid-cols-2 gap-1">
+                                                    <span>📦 Properties: {propCount}</span>
+                                                    <span>💰 Value: ${totalValue.toLocaleString()}</span>
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                    {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={() => deleteUser(u.id, u.name)}
+                                                className={`w-full mt-2 px-2 py-1 text-sm rounded transition-colors ${
+                                                    selectedUser?.id === u.id
+                                                        ? 'bg-red-600 text-white hover:bg-red-700'
+                                                        : 'bg-red-500 text-white hover:bg-red-600'
+                                                }`}
+                                            >
+                                                🗑️ Remove User
+                                            </button>
                                         </div>
-                                    </button>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -320,6 +372,16 @@ export default function AdminDashboard() {
                                                 required
                                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                             />
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="price"
+                                                placeholder="Price ($)"
+                                                value={formData.price}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                            />
                                         </div>
                                         <button
                                             type="submit"
@@ -338,9 +400,10 @@ export default function AdminDashboard() {
                                         userProperties.map(prop => (
                                             <div key={prop._id} className="bg-gray-50 p-4 rounded-lg">
                                                 <div className="flex justify-between items-start mb-3">
-                                                    <div>
+                                                    <div className="flex-1">
                                                         <h3 className="font-bold text-gray-900">{prop.title}</h3>
                                                         <p className="text-sm text-gray-600">{prop.sqft} sqft • {prop.bedrooms} BD • {prop.bathrooms} BA</p>
+                                                        <p className="text-lg font-semibold text-indigo-600 mt-1">💰 ${(prop.price || 0).toLocaleString()}</p>
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <button

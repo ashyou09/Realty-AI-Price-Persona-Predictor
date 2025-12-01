@@ -236,4 +236,51 @@ export const getUsers = async(req,res)=>{
             message: error.message
         })
     }
+}
+
+export const deleteUser = async(req,res)=>{
+    try{
+        const { id } = req.params;
+        
+        // Verify it's a valid MongoDB ID
+        if(!id || id.length !== 24){
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID'
+            })
+        }
+
+        // Find user
+        const user = await userModel.findById(id);
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+
+        // Delete user's properties first (if Property model exists)
+        try {
+            const Property = require('../models/property.js').default;
+            await Property.deleteMany({ ownerId: id });
+        } catch (err) {
+            // If property deletion fails, continue with user deletion
+            console.log('Note: Could not delete user properties:', err.message);
+        }
+
+        // Delete the user
+        await userModel.findByIdAndDelete(id);
+
+        return res.json({
+            success: true,
+            message: 'User deleted successfully'
+        })
+    }
+    catch(error){
+        console.error('Delete user error:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
 }           

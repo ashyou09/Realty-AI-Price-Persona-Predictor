@@ -55,7 +55,7 @@ export const getProperty = async (req, res) => {
 // Create a new property
 export const createProperty = async (req, res) => {
     try {
-        const { title, sqft, bedrooms, bathrooms, location_score, age, price, persona, persona_cluster } = req.body;
+        const { title, sqft, bedrooms, bathrooms, location_score, age, price, persona, persona_cluster, userId } = req.body;
 
         // Validate required fields
         if (!title || !sqft || !bedrooms || !bathrooms || !location_score || age === undefined) {
@@ -85,6 +85,10 @@ export const createProperty = async (req, res) => {
         const source = req.body.source || 'manual'; // 'ai', 'manual', 'wishlist'
         const isAiGenerated = source === 'ai';
 
+        // If admin is creating property for another user, use provided userId
+        // Otherwise, use authenticated user's ID
+        const ownerId = userId || req.userId;
+
         const property = new Property({
             title,
             sqft: Number(sqft),
@@ -98,7 +102,7 @@ export const createProperty = async (req, res) => {
             model_version: '1.0',
             isAiGenerated: isAiGenerated,
             source: source,
-            ownerId: req.userId
+            ownerId: ownerId
         });
 
         const savedProperty = await property.save();
