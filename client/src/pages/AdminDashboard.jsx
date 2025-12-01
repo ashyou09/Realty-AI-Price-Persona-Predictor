@@ -72,54 +72,49 @@ export default function AdminDashboard() {
         setShowUserForm(false);
     };
 
-    // Create user
-    const createUser = async (e) => {
+    // Create or update user
+    const handleCreateOrUpdateUser = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`${API_BASE_URL}/admin/users`, {
-                name: formData.name,
-                email: formData.email,
-                password: formData.password,
-                role: formData.role
-            }, {
-                withCredentials: true
-            });
+            if (editingUser) {
+                // Update user
+                const res = await axios.put(`${API_BASE_URL}/admin/users/${editingUser._id}`, {
+                    name: formData.name,
+                    email: formData.email,
+                    role: formData.role
+                }, {
+                    withCredentials: true
+                });
 
-            if (res.data.success) {
-                alert('User created successfully!');
-                fetchUsers();
-                resetForm();
+                if (res.data.success) {
+                    alert('User updated successfully!');
+                    fetchUsers();
+                    resetForm();
+                } else {
+                    alert(res.data.message || 'Failed to update user');
+                }
             } else {
-                alert(res.data.message || 'Failed to create user');
+                // Create new user
+                const res = await axios.post(`${API_BASE_URL}/admin/users`, {
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    role: formData.role
+                }, {
+                    withCredentials: true
+                });
+
+                if (res.data.success) {
+                    alert('User created successfully!');
+                    fetchUsers();
+                    resetForm();
+                } else {
+                    alert(res.data.message || 'Failed to create user');
+                }
             }
         } catch (err) {
-            console.error('Create user error:', err);
-            alert(err.response?.data?.message || 'Failed to create user');
-        }
-    };
-
-    // Update user
-    const updateUser = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await axios.put(`${API_BASE_URL}/admin/users/${editingUser._id}`, {
-                name: formData.name,
-                email: formData.email,
-                role: formData.role
-            }, {
-                withCredentials: true
-            });
-
-            if (res.data.success) {
-                alert('User updated successfully!');
-                fetchUsers();
-                resetForm();
-            } else {
-                alert(res.data.message || 'Failed to update user');
-            }
-        } catch (err) {
-            console.error('Update user error:', err);
-            alert(err.response?.data?.message || 'Failed to update user');
+            console.error('User operation error:', err);
+            alert(err.response?.data?.message || 'Failed to save user');
         }
     };
 
@@ -145,31 +140,6 @@ export default function AdminDashboard() {
         } catch (err) {
             console.error('Delete user error:', err);
             alert(err.response?.data?.message || 'Failed to delete user');
-        }
-    };
-
-    // Update user role
-    const updateUserRole = async (userId, newRole) => {
-        // Prevent admin from changing their own role
-        if (user && user.id === userId && newRole !== 'admin') {
-            alert('You cannot remove your own admin privileges!');
-            return;
-        }
-
-        try {
-            const res = await axios.patch(`${API_BASE_URL}/admin/users/${userId}/role`, {
-                role: newRole
-            }, {
-                withCredentials: true
-            });
-
-            if (res.data.success) {
-                alert('User role updated successfully!');
-                fetchUsers();
-            }
-        } catch (err) {
-            console.error('Update role error:', err);
-            alert(err.response?.data?.message || 'Failed to update user role');
         }
     };
 
@@ -229,7 +199,7 @@ export default function AdminDashboard() {
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">
                             {editingUser ? 'Edit User' : 'Create New User'}
                         </h2>
-                        <form onSubmit={editingUser ? updateUser : createUser} className="space-y-4">
+                        <form onSubmit={handleCreateOrUpdateUser} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
@@ -321,7 +291,6 @@ export default function AdminDashboard() {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Joined</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                                 </tr>
@@ -329,7 +298,7 @@ export default function AdminDashboard() {
                             <tbody>
                                 {filteredUsers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
                                             No users found
                                         </td>
                                     </tr>
@@ -341,21 +310,6 @@ export default function AdminDashboard() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-gray-600">{u.email}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <select
-                                                    value={u.role}
-                                                    onChange={(e) => updateUserRole(u._id, e.target.value)}
-                                                    disabled={user && user.id === u._id}
-                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                        u.role === 'admin'
-                                                            ? 'bg-purple-100 text-purple-800'
-                                                            : 'bg-blue-100 text-blue-800'
-                                                    } ${user && user.id === u._id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                                                >
-                                                    <option value="user">👤 User</option>
-                                                    <option value="admin">👨‍💼 Admin</option>
-                                                </select>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-600">
