@@ -64,10 +64,10 @@ export const createProperty = async (req, res) => {
         const { title, sqft, bedrooms, bathrooms, location_score, age, price, persona, persona_cluster, userId } = req.body;
 
         // Validate required fields
-        if (!title || !sqft || !bedrooms || !bathrooms || !location_score || age === undefined) {
+        if (!title || !sqft || !bedrooms || !bathrooms || !location_score || age === undefined || price === undefined) {
             return res.status(400).json({
                 success: false,
-                message: 'Missing required fields: title, sqft, bedrooms, bathrooms, location_score, age'
+                message: 'Missing required fields: title, sqft, bedrooms, bathrooms, location_score, age, price'
             });
         }
 
