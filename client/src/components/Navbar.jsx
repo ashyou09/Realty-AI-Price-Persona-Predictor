@@ -140,7 +140,23 @@ return (
                     <div className="px-4 py-2 border-b border-gray-200">
                         <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
                         <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
+                        {user?.role === 'admin' && (
+                            <p className="text-xs text-red-600 font-semibold mt-1">👨‍💼 Admin</p>
+                        )}
                     </div>
+                    {user?.role === 'admin' && (
+                        <>
+                            <Link
+                                to="/admin/users"
+                                className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 transition-colors duration-200 flex items-center space-x-2 border-b border-gray-200"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20a9 9 0 0118 0v2h2v-2a11 11 0 00-22 0v2h2v-2z" />
+                                </svg>
+                                <span>All Users</span>
+                            </Link>
+                        </>
+                    )}
                     <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 flex items-center space-x-2"

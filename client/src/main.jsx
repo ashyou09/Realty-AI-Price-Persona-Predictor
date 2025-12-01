@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import PropertyListingPage from './pages/PropertyListingPage.jsx';
+import AdminUsersPage from './pages/AdminUsersPage.jsx';
 
 // Context & Protection
 import { AuthProvider } from './context/AuthContext.jsx'; // 1. Import AuthProvider
@@ -43,6 +44,14 @@ function MainApp() {
               element={
                 <ProtectedRoute>
                   <PropertyListingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsersPage />
                 </ProtectedRoute>
               }
             />

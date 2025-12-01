@@ -76,7 +76,8 @@ export const register = async(req,res)=>{
             user: { 
                 id: verifyUser._id.toString(), 
                 name: verifyUser.name || normalizedName, 
-                email: verifyUser.email 
+                email: verifyUser.email,
+                role: verifyUser.role || 'user'
             }
         })
     }
@@ -131,7 +132,8 @@ export const login = async(req,res)=>{
             user: { 
                 id: user._id.toString(), 
                 name: user.name, 
-                email: user.email 
+                email: user.email,
+                role: user.role || 'user'
             }
         })
 
@@ -192,7 +194,8 @@ export const verify = async(req,res)=>{
             user: { 
                 id: user._id.toString(), 
                 name: user.name, 
-                email: user.email 
+                email: user.email,
+                role: user.role || 'user'
             }
         })
     }
@@ -200,6 +203,36 @@ export const verify = async(req,res)=>{
         return res.status(401).json({
             success: false,
             message: 'Invalid token'
+        })
+    }
+}
+
+export const getUsers = async(req,res)=>{
+    try{
+        const users = await userModel.find().select('-password').sort({ createdAt: -1 });
+        
+        if(!users){
+            return res.status(404).json({
+                success: false,
+                message: 'No users found'
+            })
+        }
+
+        return res.json({
+            success: true,
+            users: users.map(user => ({
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                role: user.role || 'user',
+                createdAt: user.createdAt
+            }))
+        })
+    }
+    catch(error){
+        return res.status(500).json({
+            success: false,
+            message: error.message
         })
     }
 }           
