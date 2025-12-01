@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 function LoginPage() {
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
-const [role, setRole] = useState('user');
 const [showPassword, setShowPassword] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
@@ -104,24 +103,6 @@ return (
                     Show password
                 </label>
             </div>
-            </div>
-            <div>
-            <label
-                htmlFor="role"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-                Login as
-            </label>
-            <select
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-            >
-                <option value="user">👤 User</option>
-                <option value="admin">👨‍💼 Admin</option>
-            </select>
             </div>
             <button
             type="submit"
