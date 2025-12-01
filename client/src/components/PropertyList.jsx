@@ -251,7 +251,7 @@ export default function PropertyList({ refreshTrigger, onPropertyChange, onEditP
                                 {user && user.role === 'admin' && (
                                     <button
                                         onClick={() => onEditProperty(property)}
-                                        className="p-1 bg-[#b3d9ff] rounded-full shadow-md hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 transition-colors"
+                                        className="p-1 bg-[#d5e4f3] rounded-full shadow-md hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 transition-colors"
                                         title="Edit property"
                                     >
                                         ✏️
