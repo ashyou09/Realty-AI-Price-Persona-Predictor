@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
         <div className="relative bg-gradient-to-b from-cyan-50 via-blue-50 to-purple-50 py-20 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="mb-8">
+                <div className="mb-8 animate-fade-in-down">
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-4xl font-bold text-gradient mb-2">
@@ -170,7 +170,7 @@ export default function AdminUsersPage() {
                         </div>
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="btn-premium shadow-glow-indigo"
+                            className="btn-premium btn-ripple shadow-glow-indigo hover:scale-105 transition-transform"
                         >
                             ← Back to Dashboard
                         </button>
@@ -179,7 +179,7 @@ export default function AdminUsersPage() {
 
                 {/* User Edit Form */}
                 {showForm && (
-                    <div className="glass-card p-6 mb-8 shadow-premium-lg">
+                    <div className="glass-card p-6 mb-8 shadow-premium-lg animate-slide-down">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">
                             Edit User
                         </h2>
@@ -242,7 +242,7 @@ export default function AdminUsersPage() {
                 )}
 
                 {/* Search Bar */}
-                <div className="mb-8">
+                <div className="mb-8 animate-fade-in-up delay-100">
                     <div className="glass-card p-6 shadow-premium">
                         <div className="flex items-center gap-2">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +253,7 @@ export default function AdminUsersPage() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search by name or email..."
-                                className="input-premium w-full"
+                                className="input-premium w-full glow-on-hover"
                             />
                             {searchQuery && (
                                 <button
@@ -274,7 +274,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Users Table */}
-                <div className="glass-card overflow-hidden shadow-premium-lg">
+                <div className="glass-card overflow-hidden shadow-premium-lg animate-fade-in-up delay-200">
                     {filteredUsers.length === 0 ? (
                         <div className="p-12 text-center">
                             <p className="text-gray-600 text-lg">No users found</p>
@@ -292,8 +292,8 @@ export default function AdminUsersPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {filteredUsers.map((u) => (
-                                        <tr key={u._id} className="hover:bg-cyan-50/50 transition-colors">
+                                    {filteredUsers.map((u, index) => (
+                                        <tr key={u._id} className="hover:bg-cyan-50/50 transition-all duration-200 hover:shadow-md stagger-item" style={{ animationDelay: `${index * 0.05}s` }}>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
@@ -323,14 +323,14 @@ export default function AdminUsersPage() {
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => viewUserProperties(u._id)}
-                                                        className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                                                        className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 btn-ripple"
                                                         title="View user's saved properties"
                                                     >
                                                         📋 Properties
                                                     </button>
                                                     <button
                                                         onClick={() => handleEdit(u)}
-                                                        className="px-3 py-1.5 text-xs font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                                                        className="px-3 py-1.5 text-xs font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-all duration-200 hover:scale-105 btn-ripple"
                                                         title="Edit user"
                                                     >
                                                         ✏️ Edit
@@ -338,7 +338,7 @@ export default function AdminUsersPage() {
                                                     <button
                                                         onClick={() => handleDelete(u._id, u.name)}
                                                         disabled={user && (user.id === u._id || user._id === u._id)}
-                                                        className={`px-3 py-1.5 text-xs font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors ${user && (user.id === u._id || user._id === u._id) ? 'opacity-50 cursor-not-allowed' : ''
+                                                        className={`px-3 py-1.5 text-xs font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all duration-200 btn-ripple ${user && (user.id === u._id || user._id === u._id) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
                                                             }`}
                                                         title="Delete user"
                                                     >

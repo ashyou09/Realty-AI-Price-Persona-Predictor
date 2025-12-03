@@ -76,7 +76,7 @@ export default function UserPropertiesPage() {
                     <p className="text-red-600 text-lg mb-4">❌ {error}</p>
                     <button
                         onClick={() => navigate('/admin/users')}
-                        className="btn-premium shadow-glow-indigo"
+                        className="btn-premium btn-ripple shadow-glow-indigo hover:scale-105 transition-transform"
                     >
                         ← Back to Users
                     </button>
@@ -89,10 +89,10 @@ export default function UserPropertiesPage() {
         <div className="min-h-screen bg-gradient-to-b from-cyan-50 via-blue-50 to-purple-50 py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="mb-8">
+                <div className="mb-8 animate-fade-in-down">
                     <button
                         onClick={() => navigate('/admin/users')}
-                        className="mb-4 px-4 py-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors flex items-center gap-2"
+                        className="mb-4 px-4 py-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-all duration-200 flex items-center gap-2 hover:scale-105"
                     >
                         ← Back to All Users
                     </button>
@@ -106,15 +106,15 @@ export default function UserPropertiesPage() {
 
                 {/* Properties Grid */}
                 {properties.length === 0 ? (
-                    <div className="glass-card p-12 text-center shadow-premium-lg">
-                        <div className="text-6xl mb-4">📭</div>
+                    <div className="glass-card p-12 text-center shadow-premium-lg animate-fade-in-up">
+                        <div className="text-6xl mb-4 animate-pulse-slow">📭</div>
                         <h3 className="text-2xl font-semibold text-gray-900 mb-2">No Saved Properties</h3>
                         <p className="text-gray-600">This user hasn't saved any properties yet.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {properties.map((property) => (
-                            <div key={property._id} className="card-premium p-6 hover:shadow-premium-lg transition-all duration-300 animate-fade-in-up">
+                        {properties.map((property, index) => (
+                            <div key={property._id} className="card-premium card-3d p-6 hover:shadow-premium-lg transition-all duration-300 stagger-item" style={{ animationDelay: `${index * 0.1}s` }}>
                                 <h3 className="text-xl font-bold text-gray-900 mb-4 truncate">{property.title}</h3>
 
                                 <div className="space-y-3">

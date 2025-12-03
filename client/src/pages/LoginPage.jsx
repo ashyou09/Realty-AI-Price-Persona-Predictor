@@ -39,8 +39,14 @@ function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-purple-50 to-pink-100"></div>
             <div className="absolute inset-0 bg-gradient-mesh opacity-40"></div>
+
+            {/* Floating Orbs */}
+            <div className="absolute top-20 left-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
+            <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-delayed"></div>
+            <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
+
             <div className="w-full max-w-md relative z-10">
                 <div className="text-center mb-8 animate-fade-in-down">
                     <h1 className="text-4xl font-bold text-gradient mb-2">Welcome Back</h1>
@@ -48,7 +54,7 @@ function LoginPage() {
                 </div>
                 <div className="glass-card p-8 shadow-premium-lg animate-fade-in-up delay-200">
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm animate-shake">
                             {error}
                         </div>
                     )}
@@ -68,7 +74,7 @@ function LoginPage() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="input-premium w-full"
+                                className="input-premium w-full glow-on-hover"
                                 placeholder="you@example.com"
                             />
                         </div>
@@ -87,7 +93,7 @@ function LoginPage() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input-premium w-full"
+                                className="input-premium w-full glow-on-hover"
                                 placeholder="••••••••"
                             />
                             <div className="mt-2 flex items-center">
@@ -109,7 +115,7 @@ function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="btn-premium w-full shadow-glow-indigo disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                            className="btn-premium w-full shadow-glow-indigo disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center btn-ripple hover:scale-105 transition-transform"
                         >
                             {loading ? (
                                 <>
@@ -137,7 +143,7 @@ function LoginPage() {
                             Don't have an account?{' '}
                             <Link
                                 to="/register"
-                                className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                                className="font-semibold text-cyan-600 hover:text-cyan-500 transition-colors duration-200"
                             >
                                 Create one here
                             </Link>

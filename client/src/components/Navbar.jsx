@@ -47,7 +47,7 @@ function Navbar() {
                         <div className="hidden md:flex items-center space-x-6">
                             <Link
                                 to="/"
-                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                             >
                                 Home
                             </Link>
@@ -55,13 +55,13 @@ function Navbar() {
                                 <>
                                     <Link
                                         to="/dashboard"
-                                        className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                        className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                                     >
                                         Prediction
                                     </Link>
                                     <Link
                                         to="/properties"
-                                        className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                        className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                                     >
                                         Properties
                                     </Link>
@@ -84,7 +84,7 @@ function Navbar() {
                                         }, 100);
                                     }
                                 }}
-                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                             >
                                 About
                             </button>
@@ -105,7 +105,7 @@ function Navbar() {
                                         }, 100);
                                     }
                                 }}
-                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                             >
                                 Reviews
                             </button>
@@ -119,7 +119,7 @@ function Navbar() {
                                     <div className="relative" ref={dropdownRef}>
                                         <button
                                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                                            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-cyan-50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
                                         >
                                             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -148,7 +148,7 @@ function Navbar() {
                                                     <>
                                                         <Link
                                                             to="/admin/users"
-                                                            className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 transition-colors duration-200 flex items-center space-x-2 border-b border-gray-200"
+                                                            className="w-full text-left px-4 py-2 text-sm text-cyan-600 hover:bg-cyan-50 transition-colors duration-200 flex items-center space-x-2 border-b border-gray-200"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20a9 9 0 0118 0v2h2v-2a11 11 0 00-22 0v2h2v-2z" />
@@ -174,7 +174,7 @@ function Navbar() {
                                 <>
                                     <Link
                                         to="/login"
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                                        className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors duration-200"
                                     >
                                         Login
                                     </Link>
