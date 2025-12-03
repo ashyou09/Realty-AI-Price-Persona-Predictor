@@ -1,156 +1,148 @@
 """
-Feature transformer to convert simple 5-feature input to model's expected format
+Feature Transformer for Real Estate Price Prediction
+Converts simple user inputs to the format expected by the trained model.
 """
+
 import pandas as pd
 import numpy as np
 
-def create_feature_dataframe(sqft, bedrooms, bathrooms, location_score, age, 
-                             status='Ready_to_move', transaction='Resale', 
-                             property_type='Apartment', furnishing='Semi-Furnished',
-                             parking=1, locality_index=None):
+
+def create_feature_dataframe(
+    sqft,
+    bedrooms,
+    bathrooms,
+    location_score,
+    status='Ready_to_move',
+    transaction='Resale',
+    property_type='Apartment',
+    furnishing='Semi-Furnished',
+    parking=1
+):
     """
     Transform simple inputs to the format expected by the trained model.
     
     Args:
-        sqft: Square footage
+        sqft: Square footage (Area)
         bedrooms: Number of bedrooms (BHK)
         bathrooms: Number of bathrooms
-        location_score: Location score (1-10) - will be used to select locality
-        age: Property age
+        location_score: Location score (1-10) - mapped to locality index
         status: 'Ready_to_move' or 'Almost_ready' (default: 'Ready_to_move')
         transaction: 'Resale' or 'New_Property' (default: 'Resale')
         property_type: 'Apartment' or 'Builder_Floor' (default: 'Apartment')
         furnishing: 'Furnished', 'Semi-Furnished', or 'Unfurnished' (default: 'Semi-Furnished')
         parking: Number of parking spaces (default: 1)
-        locality_index: Specific locality index (0-364). If None, uses location_score to estimate.
     
     Returns:
         pandas DataFrame with all features in the order expected by the model
     """
-    # Create base DataFrame
+    
+    # Create base DataFrame with numerical features
     df = pd.DataFrame({
-        'Area': [sqft],
-        'BHK': [bedrooms],
-        'Bathroom': [bathrooms],
-        'Parking': [parking],
-        'Status': [status],
-        'Transaction': [transaction],
-        'Type': [property_type],
-        'Furnishing': [furnishing],
-        'Locality': [0]  # Placeholder, will be set based on location_score
+        'Area': [float(sqft)],
+        'BHK': [int(bedrooms)],
+        'Bathroom': [int(bathrooms)],
+        'Parking': [int(parking)]
     })
     
     # Binary encoding for Status
-    df['Status'] = df['Status'].replace({
-        'Almost_ready': 0,
-        'Ready_to_move': 1
-    })
+    status_encoded = 1 if status == 'Ready_to_move' else 0
+    df['Status'] = status_encoded
     
     # Binary encoding for Transaction
-    df['Transaction'] = df['Transaction'].replace({
-        'New_Property': 0,
-        'Resale': 1
-    })
+    transaction_encoded = 1 if transaction == 'Resale' else 0
+    df['Transaction'] = transaction_encoded
     
     # Binary encoding for Type
-    df['Type'] = df['Type'].replace({
-        'Builder_Floor': 0,
-        'Apartment': 1
-    })
+    type_encoded = 1 if property_type == 'Apartment' else 0
+    df['Type'] = type_encoded
     
-    # Determine locality index based on location_score if not provided
-    # Map location_score (1-10) to locality index (0-364)
-    # Higher location_score -> higher locality index (better areas)
-    if locality_index is None:
-        # Map location_score to locality index: 1->0, 10->364, linear mapping
-        locality_index = int((location_score - 1) / 9 * 364)
-        locality_index = max(0, min(364, locality_index))  # Clamp to valid range
+    # One-hot encode Furnishing
+    df['Furnishing_Furnished'] = 1 if furnishing == 'Furnished' else 0
+    df['Furnishing_Semi-Furnished'] = 1 if furnishing == 'Semi-Furnished' else 0
+    df['Furnishing_Unfurnished'] = 1 if furnishing == 'Unfurnished' else 0
     
-    # Set locality (will be one-hot encoded)
-    df['Locality'] = locality_index
+    # Map location_score (1-10) to locality index
+    # This is a simplified mapping - in production, you might want a more sophisticated approach
+    # For now, we'll map to a range of 0-364 based on the location score
+    locality_index = int((location_score - 1) / 9 * 364)
+    locality_index = max(0, min(364, locality_index))  # Clamp to valid range
     
-    # One-hot encode Furnishing (matching notebook logic)
-    # The notebook uses onehot_encode function which creates dummies and drops original
-    furnishing_dummies = pd.get_dummies(df['Furnishing'], prefix='Furnishing')
-    # Ensure all three categories exist (set to 0 if not present)
-    furnishing_cols = ['Furnishing_Furnished', 'Furnishing_Semi-Furnished', 'Furnishing_Unfurnished']
-    for col in furnishing_cols:
-        if col not in furnishing_dummies.columns:
-            furnishing_dummies[col] = 0
-    # Reorder to ensure consistent order
-    furnishing_dummies = furnishing_dummies[furnishing_cols]
-    df = pd.concat([df, furnishing_dummies], axis=1)
-    df = df.drop('Furnishing', axis=1)
-    
-    # One-hot encode Locality (matching notebook logic)
-    # The notebook renames locality values to numbers first, then one-hot encodes
-    locality_dummies = pd.get_dummies(df['Locality'], prefix='Locality')
-    # Create all 365 locality columns (Locality_0 to Locality_364) in order
-    # This matches the notebook's approach where localities are renamed to 0-364
-    locality_cols = [f'Locality_{i}' for i in range(365)]
-    for col in locality_cols:
-        if col not in locality_dummies.columns:
-            locality_dummies[col] = 0
-    # Reorder to ensure numeric order (Locality_0, Locality_1, ..., Locality_364)
-    locality_dummies = locality_dummies.reindex(columns=locality_cols, fill_value=0)
-    df = pd.concat([df, locality_dummies], axis=1)
-    df = df.drop('Locality', axis=1)
-    
-    # Ensure columns are in the expected order:
-    # Area, BHK, Bathroom, Parking, Status, Transaction, Type,
-    # Furnishing_Furnished, Furnishing_Semi-Furnished, Furnishing_Unfurnished,
-    # Locality_0, Locality_1, ..., Locality_364
-    expected_order = (
-        ['Area', 'BHK', 'Bathroom', 'Parking', 'Status', 'Transaction', 'Type'] +
-        furnishing_cols +
-        locality_cols
-    )
-    
-    # Reorder columns to match expected order
-    df = df[expected_order]
+    # One-hot encode Locality
+    # Create all 365 locality columns (Locality_0 to Locality_364)
+    for i in range(365):
+        df[f'Locality_{i}'] = 1 if i == locality_index else 0
     
     return df
 
-def get_feature_order_from_model(model):
-    """
-    Get the feature order expected by the model.
-    CatBoost models store feature names if provided during training.
-    """
-    if hasattr(model, 'feature_names_'):
-        return model.feature_names_
-    return None
 
-def transform_features_for_model(sqft, bedrooms, bathrooms, location_score, age, model=None):
+def validate_inputs(sqft, bedrooms, bathrooms, location_score):
     """
-    Transform simple inputs to match model's expected feature format and order.
+    Validate input parameters.
     
     Args:
         sqft: Square footage
         bedrooms: Number of bedrooms
-        bathrooms: Number of bathrooms  
+        bathrooms: Number of bathrooms
         location_score: Location score (1-10)
-        age: Property age (not directly used, but can influence defaults)
-        model: The trained model (optional, used to get feature order)
+    
+    Raises:
+        ValueError: If any input is invalid
+    """
+    if sqft <= 0:
+        raise ValueError("Square footage must be greater than 0")
+    
+    if bedrooms < 0:
+        raise ValueError("Number of bedrooms must be non-negative")
+    
+    if bathrooms < 0:
+        raise ValueError("Number of bathrooms must be non-negative")
+    
+    if not (1 <= location_score <= 10):
+        raise ValueError("Location score must be between 1 and 10")
+
+
+def transform_for_prediction(
+    sqft,
+    bedrooms,
+    bathrooms,
+    location_score,
+    status='Ready_to_move',
+    transaction='Resale',
+    property_type='Apartment',
+    furnishing='Semi-Furnished',
+    parking=1
+):
+    """
+    Transform inputs and return DataFrame ready for model prediction.
+    
+    Args:
+        sqft: Square footage
+        bedrooms: Number of bedrooms
+        bathrooms: Number of bathrooms
+        location_score: Location score (1-10)
+        status: Property status (default: 'Ready_to_move')
+        transaction: Transaction type (default: 'Resale')
+        property_type: Property type (default: 'Apartment')
+        furnishing: Furnishing status (default: 'Semi-Furnished')
+        parking: Number of parking spaces (default: 1)
     
     Returns:
-        numpy array with features in the correct order for the model
+        pandas DataFrame ready for model prediction
     """
+    # Validate inputs
+    validate_inputs(sqft, bedrooms, bathrooms, location_score)
+    
     # Create feature DataFrame
-    df = create_feature_dataframe(sqft, bedrooms, bathrooms, location_score, age)
+    df = create_feature_dataframe(
+        sqft=sqft,
+        bedrooms=bedrooms,
+        bathrooms=bathrooms,
+        location_score=location_score,
+        status=status,
+        transaction=transaction,
+        property_type=property_type,
+        furnishing=furnishing,
+        parking=parking
+    )
     
-    # Get feature order from model if available
-    if model is not None:
-        feature_order = get_feature_order_from_model(model)
-        if feature_order is not None:
-            # Reorder columns to match model's expected order
-            # Add any missing columns with zeros
-            for col in feature_order:
-                if col not in df.columns:
-                    df[col] = 0
-            df = df[feature_order]
-    
-    # Convert to numpy array
-    features = df.values.astype(float)
-    
-    return features, df.columns.tolist()
-
+    return df

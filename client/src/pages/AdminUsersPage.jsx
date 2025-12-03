@@ -241,6 +241,61 @@ export default function AdminUsersPage() {
                     </div>
                 )}
 
+                {/* Statistics Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in-up delay-100">
+                    {/* Total Users Card */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-all duration-300 card-3d">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Users</p>
+                                <p className="text-4xl font-bold text-gray-900 mt-3 animate-count-up">{users.length}</p>
+                                <p className="text-xs text-gray-500 mt-1">Registered accounts</p>
+                            </div>
+                            <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-xl flex items-center justify-center shadow-inner">
+                                <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Admin Users Card */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-all duration-300 card-3d stagger-item delay-100">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Admin Users</p>
+                                <p className="text-4xl font-bold text-gray-900 mt-3 animate-count-up">
+                                    {users.filter(u => u.role === 'admin').length}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">Administrator accounts</p>
+                            </div>
+                            <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center shadow-inner">
+                                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Regular Users Card */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300 card-3d stagger-item delay-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Regular Users</p>
+                                <p className="text-4xl font-bold text-gray-900 mt-3 animate-count-up">
+                                    {users.filter(u => u.role === 'user').length}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">Standard accounts</p>
+                            </div>
+                            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center shadow-inner">
+                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Search Bar */}
                 <div className="mb-8 animate-fade-in-up delay-100">
                     <div className="glass-card p-6 shadow-premium">

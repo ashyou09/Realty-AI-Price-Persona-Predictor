@@ -50,7 +50,7 @@ router.post("/price", async (req, res) => {
     // Call AI model server
     let predictionResponse;
     try {
-      predictionResponse = await axios.post("http://localhost:8000/predict", predictionData);
+      predictionResponse = await axios.post("http://127.0.0.1:8000/predict", predictionData);
     } catch (error) {
       console.error("AI Model Server Error:", error.response?.data || error.message);
       return res.status(503).json({

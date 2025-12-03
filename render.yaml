@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: realty-ai-model
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    rootDir: ai-model
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
