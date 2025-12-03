@@ -25,25 +25,26 @@ const parseHousingCSV = () => {
             .pipe(csv())
             .on('data', (data) => {
                 // Clean and format the data
+                // Clean and format the data (adapted for delhi.csv schema)
                 const property = {
-                    id: data[''] || Math.random().toString(36).substr(2, 9),
-                    price: parseFloat(data.price) || 0,
-                    address: data.Address || '',
-                    area: parseFloat(data.area) || 0,
-                    latitude: parseFloat(data.latitude) || 0,
-                    longitude: parseFloat(data.longitude) || 0,
-                    bedrooms: parseFloat(data.Bedrooms) || 0,
-                    bathrooms: parseFloat(data.Bathrooms) || 0,
-                    balcony: data.Balcony || '',
+                    id: Math.random().toString(36).substr(2, 9),
+                    price: parseFloat(data.Price) || 0,
+                    address: data.Locality || '',
+                    area: parseFloat(data.Area) || 0,
+                    latitude: 0, // Not in delhi.csv
+                    longitude: 0, // Not in delhi.csv
+                    bedrooms: parseFloat(data.BHK) || 0,
+                    bathrooms: parseFloat(data.Bathroom) || 0,
+                    balcony: '', // Not in delhi.csv
                     status: data.Status || '',
-                    neworold: data.neworold || '',
-                    parking: data.parking || '',
-                    furnished_status: data.Furnished_status || '',
-                    lift: data.Lift || '',
-                    landmarks: data.Landmarks || '',
-                    type_of_building: data.type_of_building || '',
-                    description: data.desc || '',
-                    price_sqft: parseFloat(data.Price_sqft) || 0
+                    neworold: data.Transaction || '',
+                    parking: data.Parking || '',
+                    furnished_status: data.Furnishing || '',
+                    lift: '', // Not in delhi.csv
+                    landmarks: '', // Not in delhi.csv
+                    type_of_building: data.Type || '',
+                    description: `${data.BHK} BHK ${data.Type} in ${data.Locality}`,
+                    price_sqft: parseFloat(data.Per_Sqft) || 0
                 };
                 results.push(property);
             })
