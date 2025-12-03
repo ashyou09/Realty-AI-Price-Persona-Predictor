@@ -16,6 +16,10 @@ let housingDataCache = null;
 let cacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Force cache clear on module load
+housingDataCache = null;
+cacheTimestamp = null;
+
 // Helper function to parse CSV
 const parseHousingCSV = () => {
     return new Promise((resolve, reject) => {

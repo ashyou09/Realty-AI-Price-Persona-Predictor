@@ -220,7 +220,7 @@ EstateVerse follows a **modern, microservices-based architecture**:
 | Technology | Purpose |
 |------------|---------|
 | Vercel | Frontend Hosting |
-| Render | Backend Hosting |
+| Render | Backend & AI Model Hosting |
 | GitHub | Version Control |
 | Git | Source Control |
 
@@ -230,7 +230,8 @@ EstateVerse follows a **modern, microservices-based architecture**:
 
 ### Base URLs
 - **Backend API**: `https://realty-ai-price-persona-predictor.onrender.com`
-- **AI Service**: `http://localhost:8000` (Development)
+- **Backend API**: `https://realty-ai-price-persona-predictor.onrender.com`
+- **AI Service**: `https://ai-model-p1xe.onrender.com` (Production) / `http://localhost:8000` (Development)
 
 ---
 
@@ -1034,3 +1035,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ⭐ Star this repo if you find it helpful!
 
 </div>
+## 🚀 Deployment
+
+The application is deployed using a microservices architecture:
+
+### 1. Frontend (Vercel)
+- **Repository**: `client` directory
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: URL of the deployed backend
+
+### 2. Backend (Render)
+- **Repository**: `server` directory
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Environment Variables**:
+  - `MONGODB_URI`: MongoDB connection string
+  - `JWT_SECRET`: Secret key for JWT
+  - `AI_MODEL_URL`: `https://ai-model-p1xe.onrender.com`
+
+### 3. AI Model (Render)
+- **Repository**: `ai-model` directory
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `python server.py`
+- **Environment Variables**:
+  - `PYTHON_VERSION`: `3.10.0`
