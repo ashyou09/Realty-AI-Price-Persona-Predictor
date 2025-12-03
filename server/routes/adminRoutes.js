@@ -5,7 +5,8 @@ import {
     createUser,
     updateUser,
     deleteUser,
-    updateUserRole
+    updateUserRole,
+    getUserProperties
 } from '../controllers/adminController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
@@ -31,5 +32,8 @@ adminRoutes.delete('/users/:id', deleteUser);
 
 // Update user role
 adminRoutes.patch('/users/:id/role', updateUserRole);
+
+// Get user properties
+adminRoutes.get('/users/:userId/properties', getUserProperties);
 
 export default adminRoutes;

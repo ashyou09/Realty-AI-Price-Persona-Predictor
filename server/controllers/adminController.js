@@ -1,18 +1,23 @@
 import userModel from '../models/userModel.js';
+import Property from '../models/property.js';
 import bcrypt from 'bcryptjs';
 
 // Get all users
 export const getAllUsers = async (req, res) => {
+    console.log('👉 getAllUsers called');
     try {
         // Check if user is admin
+        console.log('👉 Checking admin privileges for:', req.user?._id);
         const user = await userModel.findById(req.user._id);
         if (!user) {
+            console.log('❌ Admin user not found');
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             });
         }
         if (user.role !== 'admin') {
+            console.log('❌ User is not admin');
             return res.status(403).json({
                 success: false,
                 message: 'Only admins can view all users'
@@ -21,16 +26,73 @@ export const getAllUsers = async (req, res) => {
 
         const users = await userModel.find().select('-password');
         console.log(`✅ Retrieved ${users.length} users from database`);
+        
+        // Transform users to include 'id' field for frontend consistency
+        const transformedUsers = users.map(user => ({
+            id: user._id.toString(),
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        }));
+        
         res.json({
             success: true,
-            users,
-            total: users.length
+            users: transformedUsers,
+            total: transformedUsers.length
         });
     } catch (error) {
         console.error('❌ Get all users error:', error.message);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch users: ' + error.message
+        });
+    }
+};
+
+// Get user's saved properties
+export const getUserProperties = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // Check if user is admin
+        const admin = await userModel.findById(req.user._id);
+        if (admin.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only admins can view user properties'
+            });
+        }
+
+        // Verify the user exists
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Get all properties owned by this user
+        const properties = await Property.find({ ownerId: userId })
+            .sort({ createdAt: -1 })
+            .select('title sqft bedrooms bathrooms location_score age price persona source createdAt');
+
+        console.log(`✅ Retrieved ${properties.length} properties for user ${userId}`);
+        
+        res.json({
+            success: true,
+            properties,
+            total: properties.length,
+            userName: user.name
+        });
+    } catch (error) {
+        console.error('❌ Get user properties error:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user properties: ' + error.message
         });
     }
 };
