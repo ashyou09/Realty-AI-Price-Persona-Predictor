@@ -20,7 +20,6 @@
 - [Machine Learning Models](#-machine-learning-models)
 - [Installation & Setup](#-installation--setup)
 - [Deployment](#-deployment)
-- [Screenshots](#-screenshots)
 - [Future Enhancements](#-future-enhancements)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -967,22 +966,6 @@ PORT=3001
 # Frontend (Vercel)
 VITE_API_BASE_URL=https://your-backend.onrender.com
 ```
-
----
-
-## 📸 Screenshots
-
-### Homepage
-![Homepage](screenshots/homepage.png)
-
-### Price Prediction
-![Price Prediction](screenshots/prediction.png)
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Admin Panel
-![Admin Panel](screenshots/admin.png)
 
 ---
 
