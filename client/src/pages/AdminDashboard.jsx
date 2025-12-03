@@ -34,7 +34,7 @@ export default function AdminDashboard() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}/admin/users`, {
+            const res = await axios.get(`${API_BASE_URL}/auth/users`, {
                 withCredentials: true
             });
             if (res.data.success && res.data.users) {
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
     };
 
     const handleEdit = (userData) => {
-        setEditingUserId(userData._id);
+        setEditingUserId(userData.id);
         setFormData({
             name: userData.name,
             email: userData.email,
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
         if (!confirm(`Are you sure you want to delete ${userName}?`)) return;
 
         try {
-            const res = await axios.delete(`${API_BASE_URL}/admin/users/${userId}`, {
+            const res = await axios.delete(`${API_BASE_URL}/auth/users/${userId}`, {
                 withCredentials: true
             });
 
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 ) : (
                                     filteredUsers.map(u => (
-                                        <tr key={u._id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <tr key={u.id} className="hover:bg-cyan-50/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-gray-900">{u.name}</div>
                                             </td>
@@ -308,11 +308,10 @@ export default function AdminDashboard() {
                                                 <div className="text-gray-600">{u.email}</div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                    u.role === 'admin'
-                                                        ? 'bg-purple-100 text-purple-800'
-                                                        : 'bg-blue-100 text-blue-800'
-                                                }`}>
+                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${u.role === 'admin'
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                    }`}>
                                                     {u.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
                                                 </span>
                                             </td>
@@ -324,19 +323,24 @@ export default function AdminDashboard() {
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-2">
                                                     <button
+                                                        onClick={() => navigate(`/admin/users/${u.id}/properties`)}
+                                                        className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600 transition-colors"
+                                                    >
+                                                        📋 Properties
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleEdit(u)}
                                                         className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
                                                     >
                                                         ✏️ Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(u._id, u.name)}
-                                                        disabled={user && user.id === u._id}
-                                                        className={`px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors ${
-                                                            user && user.id === u._id ? 'opacity-50 cursor-not-allowed' : ''
-                                                        }`}
-                                                    >
-                                                        🗑️ Delete
+                                                        onClick={() => handleDelete(u.id, u.name)}
+                                                        disabled={user && (user.id === u.id || user._id === u.id)}
+                                                        className={`px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors ${user && (user.id === u.id || user._id === u.id) ? 'opacity-50 cursor-not-allowed' : ''
+                                                            }`}
+                                                        title="Delete user"
+                                                    > 🗑️ Delete
                                                     </button>
                                                 </div>
                                             </td>
@@ -350,7 +354,7 @@ export default function AdminDashboard() {
                     {/* Footer */}
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <p className="text-sm text-gray-600">
-                            Total Users: <span className="font-bold text-gray-900">{users.length}</span> | 
+                            Total Users: <span className="font-bold text-gray-900">{users.length}</span> |
                             Showing: <span className="font-bold text-gray-900">{filteredUsers.length}</span>
                         </p>
                     </div>

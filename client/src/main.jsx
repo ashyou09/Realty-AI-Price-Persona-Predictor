@@ -13,10 +13,12 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import PropertyListingPage from './pages/PropertyListingPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import AdminUsersPage from './pages/AdminUsersPage.jsx';
+import UserPropertiesPage from './pages/UserPropertiesPage.jsx';
 
 // Context & Protection
 import { AuthProvider } from './context/AuthContext.jsx'; // 1. Import AuthProvider
-import ProtectedRoute from './components/ProtectedRoute.jsx'; 
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function MainApp() {
   return (
@@ -52,6 +54,14 @@ function MainApp() {
               element={
                 <ProtectedRoute>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/users/:userId/properties"
+              element={
+                <ProtectedRoute>
+                  <UserPropertiesPage />
                 </ProtectedRoute>
               }
             />
