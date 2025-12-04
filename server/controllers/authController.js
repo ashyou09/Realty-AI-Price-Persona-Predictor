@@ -141,9 +141,11 @@ export const login = async(req,res)=>{
 
     }
     catch(error){
+        console.error('Login error details:', error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         })
     }
 }
