@@ -889,7 +889,7 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/estateverse.git
+git clone https://github.com/ashyou09/Realty-AI-Price-Persona-Predictor.git
 cd estateverse
 ```
 
