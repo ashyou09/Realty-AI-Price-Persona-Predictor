@@ -230,7 +230,6 @@ EstateVerse follows a **modern, microservices-based architecture**:
 
 ### Base URLs
 - **Backend API**: `https://realty-ai-price-persona-predictor.onrender.com`
-- **Backend API**: `https://realty-ai-price-persona-predictor.onrender.com`
 - **AI Service**: `https://ai-model-p1xe.onrender.com` (Production) / `http://localhost:8000` (Development)
 
 ---
