@@ -54,6 +54,7 @@ export default function PropertyListingPage() {
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalProperties, setTotalProperties] = useState(0);
     const itemsPerPage = 12;
 
     // Property detail modal
@@ -136,6 +137,7 @@ export default function PropertyListingPage() {
                 setProperties(res.data.properties || []);
                 setFilteredProperties(res.data.properties || []); // Keep this for compatibility if needed, though we use properties now
                 setTotalPages(res.data.totalPages || 1);
+                setTotalProperties(res.data.total || 0);
                 setError(null);
             } else {
                 setError('Failed to fetch properties');
@@ -323,7 +325,7 @@ export default function PropertyListingPage() {
                                 🏘️ Property Listings
                             </h1>
                             <p className="text-lg text-gray-600">
-                                Explore {properties.length.toLocaleString()} properties with advanced filtering
+                                Explore {totalProperties.toLocaleString()} properties with advanced filtering
                             </p>
                         </div>
                         <button
@@ -361,7 +363,7 @@ export default function PropertyListingPage() {
                         </div>
                         {searchQuery && (
                             <p className="text-sm text-gray-500 mt-2">
-                                Found {filteredProperties.length} matching properties
+                                Found {totalProperties.toLocaleString()} matching properties
                             </p>
                         )}
                     </div>
@@ -543,8 +545,8 @@ export default function PropertyListingPage() {
                             {/* Results Count */}
                             <div className="pt-4 border-t">
                                 <p className="text-sm text-gray-600">
-                                    Showing <span className="font-semibold text-indigo-600">{filteredProperties.length}</span> of{' '}
-                                    <span className="font-semibold">{properties.length}</span> properties
+                                    Showing <span className="font-semibold text-indigo-600">{((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalProperties)}</span> of{' '}
+                                    <span className="font-semibold">{totalProperties.toLocaleString()}</span> properties
                                 </p>
                             </div>
                         </div>
