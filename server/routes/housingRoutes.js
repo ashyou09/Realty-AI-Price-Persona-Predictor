@@ -61,19 +61,9 @@ const parseHousingCSV = () => {
     });
 };
 
-// Get all housing properties
+// Get all housing properties with filtering and pagination
 router.get("/", async (req, res) => {
     try {
-        // Check if cache is valid
-        const now = Date.now();
-        if (housingDataCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
-            return res.json({
-                success: true,
-                count: housingDataCache.length,
-                properties: housingDataCache
-            });
-        }
-
         // Check if file exists
         if (!fs.existsSync(HOUSING_CSV_PATH)) {
             return res.status(404).json({
@@ -82,15 +72,83 @@ router.get("/", async (req, res) => {
             });
         }
 
-        // Parse CSV and cache
-        const properties = await parseHousingCSV();
-        housingDataCache = properties;
-        cacheTimestamp = now;
+        // Parse CSV if not cached or cache expired
+        const now = Date.now();
+        if (!housingDataCache || !cacheTimestamp || (now - cacheTimestamp) > CACHE_DURATION) {
+            housingDataCache = await parseHousingCSV();
+            cacheTimestamp = now;
+        }
+
+        let results = [...housingDataCache];
+
+        // 1. Search Filter
+        const searchQuery = req.query.search ? req.query.search.toLowerCase().trim() : '';
+        if (searchQuery) {
+            results = results.filter(p => {
+                const address = (p.address || '').toLowerCase();
+                const landmarks = (p.landmarks || '').toLowerCase();
+                const buildingType = (p.type_of_building || '').toLowerCase();
+                return address.includes(searchQuery) || landmarks.includes(searchQuery) || buildingType.includes(searchQuery);
+            });
+        }
+
+        // 2. Advanced Filters
+        if (req.query.minPrice) {
+            results = results.filter(p => p.price >= parseFloat(req.query.minPrice));
+        }
+        if (req.query.maxPrice) {
+            results = results.filter(p => p.price <= parseFloat(req.query.maxPrice));
+        }
+        if (req.query.minArea) {
+            results = results.filter(p => p.area >= parseFloat(req.query.minArea));
+        }
+        if (req.query.maxArea) {
+            results = results.filter(p => p.area <= parseFloat(req.query.maxArea));
+        }
+        if (req.query.bedrooms) {
+            results = results.filter(p => p.bedrooms === parseFloat(req.query.bedrooms));
+        }
+        if (req.query.status) {
+            results = results.filter(p => p.status === req.query.status);
+        }
+        if (req.query.furnished) {
+            results = results.filter(p => p.furnished_status === req.query.furnished);
+        }
+        if (req.query.buildingType) {
+            results = results.filter(p => p.type_of_building === req.query.buildingType);
+        }
+
+        // 3. Sorting
+        const sortBy = req.query.sortBy || 'price';
+        const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+
+        results.sort((a, b) => {
+            let aVal = a[sortBy] || 0;
+            let bVal = b[sortBy] || 0;
+            
+            if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+            if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+
+            if (aVal > bVal) return sortOrder;
+            if (aVal < bVal) return -sortOrder;
+            return 0;
+        });
+
+        // 4. Pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        const paginatedResults = results.slice(startIndex, endIndex);
 
         res.json({
             success: true,
-            count: properties.length,
-            properties: properties
+            count: paginatedResults.length,
+            total: results.length,
+            totalPages: Math.ceil(results.length / limit),
+            currentPage: page,
+            properties: paginatedResults
         });
     } catch (error) {
         console.error("Error reading housing data:", error);

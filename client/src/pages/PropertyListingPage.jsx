@@ -53,6 +53,7 @@ export default function PropertyListingPage() {
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 12;
 
     // Property detail modal
@@ -66,7 +67,8 @@ export default function PropertyListingPage() {
     // Fetch properties
     useEffect(() => {
         fetchProperties();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPage, filters, sortBy, sortOrder, searchQuery]);
 
     // Fetch saved properties to show which ones are already saved
     const fetchSavedProperties = async () => {
@@ -99,12 +101,6 @@ export default function PropertyListingPage() {
         }
     };
 
-    // Apply filters and sorting
-    useEffect(() => {
-        applyFiltersAndSort();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [properties, filters, sortBy, sortOrder, searchQuery]);
-
     // Re-fetch saved properties when properties list is loaded
     useEffect(() => {
         if (properties.length > 0 && !loading) {
@@ -116,9 +112,30 @@ export default function PropertyListingPage() {
     const fetchProperties = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}/housing`);
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            params.append('page', currentPage);
+            params.append('limit', itemsPerPage);
+            params.append('sortBy', sortBy);
+            params.append('sortOrder', sortOrder);
+
+            if (searchQuery) params.append('search', searchQuery);
+            if (filters.minPrice) params.append('minPrice', filters.minPrice);
+            if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+            if (filters.minArea) params.append('minArea', filters.minArea);
+            if (filters.maxArea) params.append('maxArea', filters.maxArea);
+            if (filters.bedrooms) params.append('bedrooms', filters.bedrooms);
+            if (filters.status) params.append('status', filters.status);
+            if (filters.furnished) params.append('furnished', filters.furnished);
+            if (filters.buildingType) params.append('buildingType', filters.buildingType);
+
+            const res = await axios.get(`${API_BASE_URL}/housing?${params.toString()}`);
+
             if (res.data.success) {
                 setProperties(res.data.properties || []);
+                setFilteredProperties(res.data.properties || []); // Keep this for compatibility if needed, though we use properties now
+                setTotalPages(res.data.totalPages || 1);
                 setError(null);
             } else {
                 setError('Failed to fetch properties');
@@ -131,62 +148,7 @@ export default function PropertyListingPage() {
         }
     };
 
-    const applyFiltersAndSort = () => {
-        let filtered = [...properties];
-
-        // Apply search filter
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(p => {
-                const address = (p.address || '').toLowerCase();
-                const landmarks = (p.landmarks || '').toLowerCase();
-                const buildingType = (p.type_of_building || '').toLowerCase();
-                return address.includes(query) || landmarks.includes(query) || buildingType.includes(query);
-            });
-        }
-
-        // Apply filters
-        if (filters.minPrice) {
-            filtered = filtered.filter(p => p.price >= parseFloat(filters.minPrice));
-        }
-        if (filters.maxPrice) {
-            filtered = filtered.filter(p => p.price <= parseFloat(filters.maxPrice));
-        }
-        if (filters.minArea) {
-            filtered = filtered.filter(p => p.area >= parseFloat(filters.minArea));
-        }
-        if (filters.maxArea) {
-            filtered = filtered.filter(p => p.area <= parseFloat(filters.maxArea));
-        }
-        if (filters.bedrooms) {
-            filtered = filtered.filter(p => p.bedrooms === parseFloat(filters.bedrooms));
-        }
-        if (filters.status) {
-            filtered = filtered.filter(p => p.status === filters.status);
-        }
-        if (filters.furnished) {
-            filtered = filtered.filter(p => p.furnished_status === filters.furnished);
-        }
-        if (filters.buildingType) {
-            filtered = filtered.filter(p => p.type_of_building === filters.buildingType);
-        }
-
-        // Apply sorting
-        filtered.sort((a, b) => {
-            let aVal = a[sortBy] || 0;
-            let bVal = b[sortBy] || 0;
-
-            if (sortOrder === 'asc') {
-                return aVal > bVal ? 1 : -1;
-            } else {
-                return aVal < bVal ? 1 : -1;
-            }
-        });
-
-        setFilteredProperties(filtered);
-        setCurrentPage(1); // Reset to first page when filters change
-    };
-
+    // Handle sort change
     const handleSort = (field) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -194,7 +156,10 @@ export default function PropertyListingPage() {
             setSortBy(field);
             setSortOrder('asc');
         }
+        setCurrentPage(1); // Reset to first page on sort change
     };
+
+
 
     const handleFilterChange = (field, value) => {
         setFilters(prev => ({ ...prev, [field]: value }));
@@ -310,15 +275,15 @@ export default function PropertyListingPage() {
     };
 
     // Pagination
-    const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentProperties = filteredProperties.slice(startIndex, endIndex);
+    // const totalPages = Math.ceil(filteredProperties.length / itemsPerPage); // Now from API
+    // const startIndex = (currentPage - 1) * itemsPerPage;
+    // const endIndex = startIndex + itemsPerPage;
+    const currentProperties = properties; // Server side pagination returns only current page items
 
-    // Get unique values for filter dropdowns
-    const uniqueStatuses = [...new Set(properties.map(p => p.status).filter(Boolean))];
-    const uniqueFurnished = [...new Set(properties.map(p => p.furnished_status).filter(Boolean))];
-    const uniqueBuildingTypes = [...new Set(properties.map(p => p.type_of_building).filter(Boolean))];
+    // Hardcoded values for filter dropdowns to ensure they persist during filtering
+    const uniqueStatuses = ['Ready to Move', 'Almost Ready'];
+    const uniqueFurnished = ['Semi-Furnished', 'Unfurnished', 'Furnished'];
+    const uniqueBuildingTypes = ['Apartment', 'Builder Floor', 'Penthouse'];
 
     if (loading) {
         return (
