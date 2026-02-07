@@ -992,9 +992,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Project Maintainer:** Your Name
 
-- Email: your.email@example.com
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/ashutosh-singh2024)
-- GitHub: [@yourusername](https://github.com/ashyou09)
+- Email: [email](ashutosh.singh2024@nst.rishihood.edu.in)
+- LinkedIn: [LinkedIn](https://linkedin.com/in/ashutosh-singh2024)
+- GitHub: [username](https://github.com/ashyou09)
 
 **Project Link:** https://github.com/ashyou09/Realty-AI-Price-Persona-Predictor.git
 
